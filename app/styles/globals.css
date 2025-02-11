@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@import "./colors.css";
+
+@source "../{app,components,config,lib}/**/*.{ts,tsx}";
+
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
