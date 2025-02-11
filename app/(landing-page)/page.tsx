@@ -6,6 +6,7 @@ export default function LandingPage() {
       <div className="max-w-3xl">
         <TerminalDemo />
       </div>
+      <div className="text-4xl font-bold mb-8 text-mint-500">Jennings Fantini</div>
     </main>
   );
 }
