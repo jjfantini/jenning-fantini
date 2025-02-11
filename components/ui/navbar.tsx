@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarIcon, HomeIcon, MailIcon, PencilIcon } from "lucide-react";
+
 import Link from "next/link";
 import React from "react";
 
@@ -15,44 +15,13 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Dock, DockIcon } from "@/components/magicui/dock";
-import { Icons } from "@/components/ui/icons";
+import { DATA } from "@/data/personal-details";
 
-const DATA = {
-  navbar: [
-    { href: "#", icon: HomeIcon, label: "Home" },
-    { href: "#", icon: PencilIcon, label: "Blog" },
-  ],
-  contact: {
-    social: {
-      GitHub: {
-        name: "GitHub",
-        url: "#",
-        icon: Icons.github,
-      },
-      LinkedIn: {
-        name: "LinkedIn",
-        url: "#",
-        icon: Icons.linkedin,
-      },
-      X: {
-        name: "X",
-        url: "#",
-        icon: Icons.x,
-      },
-      email: {
-        name: "Send Email",
-        url: "#",
-        icon: Icons.email,
-      },
-    },
-  },
-};
-
-export function Navbar() {
+export default function Navbar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 flex flex-col items-center justify-center">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
       <TooltipProvider>
-        <Dock direction="middle">
+        <Dock direction="middle" className="pointer-events-auto bg-background/80 backdrop-blur-md border rounded-full p-2 shadow-lg">
           {DATA.navbar.map((item) => (
             <DockIcon key={item.label}>
               <Tooltip>
@@ -62,7 +31,7 @@ export function Navbar() {
                     aria-label={item.label}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
-                      "size-12 rounded-full"
+                      "size-12 rounded-full",
                     )}
                   >
                     <item.icon className="size-4" />
@@ -75,7 +44,9 @@ export function Navbar() {
             </DockIcon>
           ))}
           <Separator orientation="vertical" className="h-full" />
-          {Object.entries(DATA.contact.social).map(([name, social]) => (
+          {Object.entries(DATA.contact.social)
+            .filter(([_, social]) => social.navbar)
+            .map(([name, social]) => (
             <DockIcon key={name}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -84,7 +55,7 @@ export function Navbar() {
                     aria-label={social.name}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
-                      "size-12 rounded-full"
+                      "size-12 rounded-full",
                     )}
                   >
                     <social.icon className="size-4" />
