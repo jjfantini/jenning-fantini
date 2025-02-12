@@ -10,23 +10,19 @@ export function LandingTerminal() {
       <TypingAnimation>&gt; pnpm add Jennings Fantini</TypingAnimation>
 
       <AnimatedSpan delay={1500} className="text-green-500">
-        <span>✔ Loading skills. Found </span>
+        <span>✔ Loading skills. Found 25.</span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={2000} className="text-green-500">
-        <span>✔ Verifying framework. Found Next.js.</span>
+        <span>✔ Verifying Humanity. Verified.</span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={2500} className="text-green-500">
-        <span>✔ Validating Tailwind CSS.</span>
-      </AnimatedSpan>
-
-      <AnimatedSpan delay={3000} className="text-green-500">
-        <span>✔ Validating import alias.</span>
+        <span>✔ Validating Ambition. Validated.</span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={3500} className="text-green-500">
-        <span>✔ Writing components.json.</span>
+        <span>✔ Uploading persona. Finished.</span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={4000} className="text-green-500">
@@ -34,28 +30,28 @@ export function LandingTerminal() {
       </AnimatedSpan>
 
       <AnimatedSpan delay={4500} className="text-green-500">
-        <span>✔ Updating tailwind.config.ts</span>
+        <span>✔ Updating opinions.</span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={5000} className="text-green-500">
-        <span>✔ Updating app/globals.css</span>
+        <span>✔ Updating knowledge.</span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={5500} className="text-green-500">
-        <span>✔ Installing dependencies.</span>
+        <span>✔ Installing drive.</span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={6000} className="text-blue-500">
-        <span>ℹ Updated 1 file:</span>
-        <span className="pl-2">- lib/utils.ts</span>
+        <span>ℹ Create one human:</span>
+        <span className="pl-2">- System Rebooted.</span>
       </AnimatedSpan>
 
       <TypingAnimation delay={6500} className="text-muted-foreground">
-        Success! Project initialization completed.
+        Success! Human created.
       </TypingAnimation>
 
       <TypingAnimation delay={7000} className="text-muted-foreground">
-        You may now add components.
+        You may now explore Jennings.
       </TypingAnimation>
     </Terminal>
   );

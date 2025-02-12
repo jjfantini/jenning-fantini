@@ -1,10 +1,13 @@
+'use client'
+
 import { LandingTerminal } from "./_components/terminal-intro";
-import { AnimatedTitle } from "@/components/ui/animated-title";
 import { AuroraText } from "@/components/ui/aurora-text";
+import { RepellingText } from "./_components/repelling-text";
+
 export default function LandingPage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-8">
-      <AnimatedTitle 
+    <main className="min-h-screen flex flex-col items-center p-4 gap-8 mt-10">
+      <RepellingText 
         text="Jennings Fantini"
         className="text-7xl font-bold text-mint-500"
       />
