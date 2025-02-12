@@ -1,5 +1,5 @@
 import { Icons } from "@/components/ui/icons";
-import { HomeIcon, FolderIcon, BookOpenIcon } from "lucide-react";
+import { HomeIcon, FolderIcon, BookOpenIcon, GlobeIcon, CodeIcon, DatabaseIcon } from "lucide-react";
 
 export const DATA = {
   name: "Jennings Fantini",
@@ -114,6 +114,7 @@ export const DATA = {
   projects: [
     {
       title: "humblFINANCE",
+      icon: <GlobeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://humblfinance.io",
       dates: "Oct 2022 - Present",
       active: true,
@@ -145,6 +146,7 @@ export const DATA = {
     },
     {
       title: "humblDATA",
+      icon: <CodeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://humblfinance.github.io/humblDATA/",
       dates: "March 2024 - Present",
       active: true,
@@ -175,6 +177,7 @@ export const DATA = {
     },
     {
       title: "humblAPI",
+      icon: <DatabaseIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://github.com/humblfinance/humblapi",
       dates: "March 2024 - Present", 
       active: true,
@@ -202,6 +205,7 @@ export const DATA = {
     },
     {
       title: "Python Package Template",
+      icon: <CodeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://github.com/humblFINANCE/cookiecutter-python",
       dates: "March 2024 - Present",
       active: true,
@@ -231,6 +235,7 @@ export const DATA = {
     },
     {
       title: "Social AI Bot",
+      icon: <CodeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://github.com/humblFINANCE/social-orghi",
       dates: "March 2024 - Present",
       active: true,
@@ -263,6 +268,7 @@ export const DATA = {
     },
     {
       title: "OpenBB ORATS Extension",
+      icon: <DatabaseIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://github.com/jjfantini/openbb-orats",
       dates: "March 2024 - Present",
       active: true,
@@ -293,6 +299,7 @@ export const DATA = {
     },
     {
       title: "AutobookAPI",
+      icon: <DatabaseIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://github.com/jenningsfantini/autobookapi",
       dates: "March 2024 - Present", 
       active: true,
@@ -320,6 +327,7 @@ export const DATA = {
     },
     {
       title: "Autobook",
+      icon: <GlobeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://autobook.finance",
       dates: "March 2024 - Present",
       active: true,
@@ -350,6 +358,7 @@ export const DATA = {
     },
     {
       title: "Splashcap",
+      icon: <GlobeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
       href: "https://splashcap.us",
       dates: "March 2024 - Present",
       active: true,

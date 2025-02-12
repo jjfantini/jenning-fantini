@@ -6,7 +6,7 @@ export default function LandingPage() {
     <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-8">
       <AnimatedTitle 
         text="Jennings Fantini"
-        className="text-7xl font-bold text-neutral-600"
+        className="text-7xl font-bold text-mint-500"
       />
       <div className="max-w-4xl">
         <LandingTerminal />

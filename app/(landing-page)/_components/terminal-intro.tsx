@@ -7,10 +7,10 @@ import {
 export function LandingTerminal() {
   return (
     <Terminal>
-      <TypingAnimation>&gt; pnpm dlx shadcn@latest init</TypingAnimation>
+      <TypingAnimation>&gt; pnpm add Jennings Fantini</TypingAnimation>
 
       <AnimatedSpan delay={1500} className="text-green-500">
-        <span>✔ Preflight checks.</span>
+        <span>✔ Loading skills. Found </span>
       </AnimatedSpan>
 
       <AnimatedSpan delay={2000} className="text-green-500">
