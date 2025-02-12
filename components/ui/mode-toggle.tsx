@@ -3,8 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { IconSun, IconMoon } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 
-export function ModeToggle() {
+interface ModeToggleProps {
+  className?: string;
+}
+
+export function ModeToggle({ className }: ModeToggleProps) {
   const { theme, setTheme } = useTheme();
 
   return (
@@ -12,7 +17,7 @@ export function ModeToggle() {
       variant="ghost"
       type="button"
       size="icon"
-      className="size-12 text-zinc-800 dark:text-white hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/80 dark:hover:bg-white/10"
+      className={cn("size-12 text-zinc-800 dark:text-white hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/80 dark:hover:bg-white/10", className)}
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
       <IconSun className="size-4 text-zinc-800 dark:hidden" />

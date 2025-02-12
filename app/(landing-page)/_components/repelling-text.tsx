@@ -109,9 +109,9 @@ export function RepellingText({
           index={i}
           mouseX={mouseX}
           mouseY={mouseY}
-          containerRef={containerRef}
+          containerRef={containerRef as React.RefObject<HTMLDivElement>}
           intensity={intensity}
-          springConfig={springConfig as { stiffness: number; damping: number }}
+          springConfig={springConfig}
         />
       ))}
     </motion.div>
