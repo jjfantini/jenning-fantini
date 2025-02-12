@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @import "./colors.css";
+@import "./aurora.css";
 
 @source "../{app,components,config,lib}/**/*.{ts,tsx}";
 
@@ -11,6 +12,45 @@
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Aurora Colors */
+  --color-1: 0 100% 63%;
+  --color-2: 270 100% 63%;
+  --color-3: 210 100% 63%;
+  --color-4: 195 100% 63%;
+  --color-5: 90 100% 63%;
+}
+
+/* Keyframes */
+@keyframes aurora-border {
+  0%, 100% { border-radius: 37% 29% 27% 27% / 28% 25% 41% 37%; }
+  25% { border-radius: 47% 29% 39% 49% / 61% 19% 66% 26%; }
+  50% { border-radius: 57% 23% 47% 72% / 63% 17% 66% 33%; }
+  75% { border-radius: 28% 49% 29% 100% / 93% 20% 64% 25%; }
+}
+
+@keyframes aurora-1 {
+  0%, 100% { top: 0; right: 0; }
+  50% { top: 50%; right: 25%; }
+  75% { top: 25%; right: 50%; }
+}
+
+@keyframes aurora-2 {
+  0%, 100% { top: 0; left: 0; }
+  60% { top: 75%; left: 25%; }
+  85% { top: 50%; left: 50%; }
+}
+
+@keyframes aurora-3 {
+  0%, 100% { bottom: 0; left: 0; }
+  40% { bottom: 50%; left: 25%; }
+  65% { bottom: 25%; left: 50%; }
+}
+
+@keyframes aurora-4 {
+  0%, 100% { bottom: 0; right: 0; }
+  50% { bottom: 25%; right: 40%; }
+  90% { bottom: 50%; right: 25%; }
 }
 
 :root {
