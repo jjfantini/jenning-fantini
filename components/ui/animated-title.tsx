@@ -61,22 +61,26 @@ export function AnimatedTitle({ text, className = "" }: AnimatedTitleProps) {
   return (
     <div className={className}>
       {text.split("").map((char, i) => (
-        <motion.span
-          key={i}
-          initial="initial"
-          animate="animate"
-          variants={letterVariants}
-          custom={i}
-          whileHover="hover"
-          onHoverStart={() => setIsHovered(i)}
-          onHoverEnd={() => setIsHovered(null)}
-          className="inline-block cursor-pointer"
-          style={{
-            color: isHovered === i ? 'var(--primary)' : 'inherit',
-          }}
-        >
-          {char}
-        </motion.span>
+        char === " " ? (
+          <span key={i}>&nbsp;</span>
+        ) : (
+          <motion.span
+            key={i}
+            initial="initial"
+            animate="animate"
+            variants={letterVariants}
+            custom={i}
+            whileHover="hover"
+            onHoverStart={() => setIsHovered(i)}
+            onHoverEnd={() => setIsHovered(null)}
+            className="inline-block cursor-pointer"
+            style={{
+              color: isHovered === i ? 'var(--primary)' : 'inherit',
+            }}
+          >
+            {char}
+          </motion.span>
+        )
       ))}
     </div>
   )

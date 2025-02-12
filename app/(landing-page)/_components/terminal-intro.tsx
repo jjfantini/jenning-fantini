@@ -4,7 +4,7 @@ import {
   TypingAnimation,
 } from "@/components/magicui/terminal";
 
-export function TerminalDemo() {
+export function LandingTerminal() {
   return (
     <Terminal>
       <TypingAnimation>&gt; pnpm dlx shadcn@latest init</TypingAnimation>

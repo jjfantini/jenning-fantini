@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@import "./styles/colors.css";
+@import "./colors.css";
 
 @source "../{app,components,config,lib}/**/*.{ts,tsx}";
 
