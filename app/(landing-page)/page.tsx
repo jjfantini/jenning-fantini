@@ -9,7 +9,7 @@ export default function LandingPage() {
     <main className="min-h-screen flex flex-col items-center p-4 gap-8 mt-10">
       <RepellingText 
         text="Jennings Fantini"
-        className="text-7xl font-bold text-mint-500"
+        className="text-7xl font-bold text-neutral-900 dark:text-neutral-100"
       />
       <div className="max-w-4xl">
         <LandingTerminal />

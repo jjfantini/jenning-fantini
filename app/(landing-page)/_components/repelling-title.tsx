@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useSpring, MotionValue } from "motion/react";
 import { useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 interface RepellingLetterProps {
   char: string;
@@ -97,7 +98,11 @@ export function RepellingText({
   return (
     <motion.div
       ref={containerRef}
-      className={`relative ${className}`}
+      className={cn(
+        "relative",
+        "before:absolute before:inset-0 before:-z-10 before:rounded-lg before:bg-gradient-to-r before:from-[hsl(var(--color-1))] before:via-[hsl(var(--color-2))] before:to-[hsl(var(--color-3))] before:opacity-20 before:blur-xl before:transition-opacity before:duration-500 hover:before:opacity-30",
+        className
+      )}
       initial={{ opacity: initialAnimation.opacity, y: initialAnimation.y }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}

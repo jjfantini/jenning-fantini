@@ -39,7 +39,7 @@
   90% { bottom: 50%; right: 25%; }
 }
 
-/* @utilities {
+@utilities {
   .text-color-1 { color: hsl(var(--color-1)); }
   .text-color-2 { color: hsl(var(--color-2)); }
   .text-color-3 { color: hsl(var(--color-3)); }
@@ -51,4 +51,4 @@
   .bg-color-3 { background-color: hsl(var(--color-3)); }
   .bg-color-4 { background-color: hsl(var(--color-4)); }
   .bg-color-5 { background-color: hsl(var(--color-5)); }
-} */
+}
