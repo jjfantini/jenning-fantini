@@ -2,7 +2,7 @@
 
 import { LandingTerminal } from "./_components/terminal-intro";
 import { AuroraText } from "@/components/ui/aurora-text";
-import { RepellingText } from "./_components/repelling-text";
+import { RepellingText } from "./_components/repelling-title";
 
 export default function LandingPage() {
   return (
