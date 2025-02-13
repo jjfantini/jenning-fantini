@@ -1,0 +1,7 @@
+---
+description: Rules to help with importing packages.
+globs: 
+---
+
+# Updates
+"framer-motion" is now "motion", it can be imported via "motion/react"

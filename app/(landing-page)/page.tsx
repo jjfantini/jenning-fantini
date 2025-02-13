@@ -1,4 +1,4 @@
-'use client'
+// 'use client'
 
 import { LandingTerminal } from "./_components/terminal-intro";
 import { AuroraText } from "@/components/ui/aurora-text";

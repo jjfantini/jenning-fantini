@@ -1,0 +1,26 @@
+---
+description: The tech stack that this project uses.
+globs: 
+---
+
+# My Project Stack
+
+Tailwind v4:
+  1. Do NOT suggest any syntax from Tailiwind v3. Please perform a web search if you are not sure, or ask the user to clarify. The upgrade guide can be found here: https://tailwindcss.com/docs/upgrade-guide
+  2. v4 no longer uses a tailwind.config.ts file. Please don't suggest any code solutions implementing one.
+  3. To modularize CSS styles, you can now import specific CSS files in the globals.css file. (@import "./colors.css";). Any custom solution that requires CSS should be created in a new file in ./app/styles/{new-file-name}.css
+  4. Custom utilities now use a @utilities decorator, NOT @layer utilities.
+  5. Since v4 includes CSS variables for all of your theme values, we recommend using those variables instead of the theme() function whenever possible:
+
+Next.js 15.2 (App Router)
+
+React 19
+
+Shadcn / MagicUI / AceternityUI
+
+pnpm for package management
+
+micromamba for environment management (local environment at ./menv)
+
+
+
