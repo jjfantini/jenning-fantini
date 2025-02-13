@@ -12,9 +12,12 @@ Tailwind v4:
   4. Custom utilities now use a @utilities decorator, NOT @layer utilities.
   5. Since v4 includes CSS variables for all of your theme values, we recommend using those variables instead of the theme() function whenever possible:
 
-Next.js 15.2 (App Router)
+Next.js 15.2
+  1. App Router
+  2. No src/ directory
 
 React 19
+  1. forwardRef is deprecated.
 
 Shadcn / MagicUI / AceternityUI
 
