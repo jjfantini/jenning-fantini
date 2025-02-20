@@ -4,7 +4,7 @@ import {
   TypingAnimation,
 } from "@/components/magicui/terminal";
 
-export function LandingTerminal() {
+export function TerminalIntro() {
   return (
     <Terminal>
       <TypingAnimation>&gt; pnpm add Jennings Fantini</TypingAnimation>

@@ -53,7 +53,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <main className="flex-auto min-w-0 m-6 flex flex-col px-2" suppressHydrationWarning>
+        <main className="flex-auto min-w-0 flex flex-col px-2" suppressHydrationWarning>
           <RootProvider>
             {children}
             <Navbar  />
