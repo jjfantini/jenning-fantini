@@ -82,17 +82,31 @@ export function RepellingText({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const updatePosition = (clientX: number, clientY: number) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      mouseX.set(x);
-      mouseY.set(y);
+      mouseX.set(clientX - rect.left);
+      mouseY.set(clientY - rect.top);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      updatePosition(e.clientX, e.clientY);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (touch) {
+        updatePosition(touch.clientX, touch.clientY);
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchmove", handleTouchMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
   }, [mouseX, mouseY]);
 
   return (
