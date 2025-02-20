@@ -100,7 +100,7 @@ export function RepellingText({
       ref={containerRef}
       className={cn(
         "relative",
-        "before:absolute before:inset-0 before:-z-10 before:rounded-lg before:bg-gradient-to-r before:from-[hsl(var(--color-1))] before:via-[hsl(var(--color-2))] before:to-[hsl(var(--color-3))] before:opacity-20 before:blur-xl before:transition-opacity before:duration-500 hover:before:opacity-30",
+        "before:absolute before:inset-0 before:-z-10 before:rounded-lg before:bg-gradient-to-r before:from-[hsl(var(--color-1))] before:via-[hsl(var(--color-2))] before:to-[hsl(var(--color-3))] before:opacity-20 before:blur-xl before:transition-opacity before:duration-500",
         className
       )}
       initial={{ opacity: initialAnimation.opacity, y: initialAnimation.y }}
