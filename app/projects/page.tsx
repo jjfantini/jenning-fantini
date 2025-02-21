@@ -13,7 +13,7 @@ export default function ProjectsPage() {
         text="Projects" 
         className="text-4xl font-bold mb-8 text-neutral-900 dark:text-neutral-300"
       />
-      <div className="grid gap-y-1 mb-[4rem]">
+      <div className="grid gap-y-1">
         <div className="flex justify-center h-[4rem]">
           <TypingAnimation 
             className="text-lg text-neutral-900 dark:text-neutral-300 text-center"
@@ -52,6 +52,7 @@ export default function ProjectsPage() {
           ))}
         </motion.ul>
       </div>
+      <div className="h-30 sm:h-20" />
     </div>
   )
 }
