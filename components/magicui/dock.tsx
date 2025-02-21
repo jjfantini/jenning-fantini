@@ -12,6 +12,7 @@ import {
 import React, { PropsWithChildren, useRef } from "react";
 
 import { cn } from "@/lib/utils";
+import { useIsMobile } from '@/lib/hooks/use-mobile-device';
 
 export interface DockProps extends VariantProps<typeof dockVariants> {
   className?: string;
@@ -45,6 +46,16 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
   ) => {
     const mouseX = useMotionValue(Infinity);
 
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseX.set(e.touches[0].pageX);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      mouseX.set(Infinity);
+    };
+
     const renderChildren = () => {
       return React.Children.map(children, (child) => {
         if (React.isValidElement<DockIconProps>(child) && child.type === DockIcon) {
@@ -65,11 +76,15 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
         ref={ref}
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
         {...props}
         className={cn(dockVariants({ className }), {
           "items-start": direction === "top",
           "items-center": direction === "middle",
           "items-end": direction === "bottom",
+          "touch-none": true,
         })}
       >
         {renderChildren()}
@@ -101,8 +116,17 @@ const DockIcon = ({
   ...props
 }: DockIconProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const padding = Math.max(6, size * 0.2);
-  const defaultMouseX = useMotionValue(Infinity);
+  const isMobile = useIsMobile('NavBar');
+  const [screenWidth, setScreenWidth] = React.useState(0);
+
+  React.useEffect(() => {
+    setScreenWidth(window.innerWidth);
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const padding = Math.max(0, size * 0.00);
 
   const distanceCalc = useTransform(mouseX ?? defaultMouseX, (val: number) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
@@ -115,16 +139,25 @@ const DockIcon = ({
     [size, magnification, size],
   );
 
-  const scaleSize = useSpring(sizeTransform, {
-    mass: 0.1,
-    stiffness: 150,
-    damping: 12,
-  });
+  const scaleSize = useSpring(
+    useTransform(sizeTransform, (size) => {
+      return isMobile ? size * 0.75 : size;
+    }),
+    {
+      mass: 0.1,
+      stiffness: 150,
+      damping: 12,
+    }
+  );
 
   return (
     <motion.div
       ref={ref}
-      style={{ width: scaleSize, height: scaleSize, padding }}
+      style={{ 
+        width: scaleSize, 
+        height: scaleSize, 
+        padding 
+      }}
       className={cn(
         "flex aspect-square cursor-pointer items-center justify-center rounded-full",
         className,
