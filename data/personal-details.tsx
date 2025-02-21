@@ -82,7 +82,7 @@ export const DATA = {
       start: "Oct 2022",
       end: "Present",
       description:
-        "Built a comprehensive financial platform offering multiple tools and services through a modular architecture. Features include humblCHANNEL (financial content/education), humblPORTFOLIO (portfolio management), and humblCOMPASS (financial guidance/analytics).",
+        "Built a comprehensive financial platform offering multiple tools and services through a modular architecture. Features include humblCHANNEL (robust trading price channel), humblPORTFOLIO (portfolio management), and humblCOMPASS (global economic health indicator).",
     },
   ],
   education: [
