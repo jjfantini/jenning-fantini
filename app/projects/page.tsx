@@ -4,42 +4,54 @@ import { GlowingEffect } from "@/components/ui/glowing-effect"
 import { AnimatedTitle } from "@/components/ui/animated-title"
 import TypingAnimation from "@/components/ui/typing-animation"
 import { DATA } from "@/data/personal-details"
+import { motion } from "motion/react"
 
 export default function ProjectsPage() {
   return (
-    <main className="flex flex-col items-center justify-between" suppressHydrationWarning>
-      <div className="z-10 items-center justify-between font-mono text-sm" suppressHydrationWarning>
-        <AnimatedTitle 
-          text="Projects" 
-          className="text-4xl font-bold mb-8 text-neutral-900 dark:text-neutral-300"
-        />
-        <div className="grid gap-8">
+    <div className="flex flex-col items-center justify-between p-2 md:p-8 z-10 font-mono text-sm" suppressHydrationWarning>
+      <AnimatedTitle 
+        text="Projects" 
+        className="text-4xl font-bold mb-8 text-neutral-900 dark:text-neutral-300"
+      />
+      <div className="grid gap-8">
+        <div className="flex justify-center">
           <TypingAnimation 
-            className="text-lg text-neutral-900 dark:text-neutral-300"
+            className="text-lg text-neutral-900 dark:text-neutral-300 text-center"
             duration={50}
             delay={500}
             startOnView
           >
             Welcome to my projects page. Here you&apos;ll find a collection of my work.
           </TypingAnimation>
-          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {DATA.projects.map((project) => (
-              <GridItem
-                key={project.title}
-                area=""
-                icon={project.icon}
-                title={project.title}
-                description={project.description}
-                href={project.href}
-                isPrivate={project.private}
-                dates={project.dates}
-                technologies={project.technologies}
-              />
-            ))}
-          </ul>
         </div>
+        <motion.ul 
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: {
+              transition: {
+                staggerChildren: 0.15
+              }
+            }
+          }}
+        >
+          {DATA.projects.map((project) => (
+            <GridItem
+              key={project.title}
+              area=""
+              icon={project.icon}
+              title={project.title}
+              description={project.description}
+              href={project.href}
+              isPrivate={project.private}
+              dates={project.dates}
+              technologies={project.technologies}
+            />
+          ))}
+        </motion.ul>
       </div>
-    </main>
+    </div>
   )
 }
 
@@ -56,7 +68,14 @@ interface GridItemProps {
 
 const GridItem = ({ area = "", icon, title, description, href, isPrivate, dates, technologies }: GridItemProps) => {
   return (
-    <li className={`min-h-[14rem] list-none ${area}`}>
+    <motion.li 
+      className={`min-h-[14rem] list-none ${area}`}
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+      }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
         <GlowingEffect
           blur={0}
@@ -103,6 +122,6 @@ const GridItem = ({ area = "", icon, title, description, href, isPrivate, dates,
           </div>
         </div>
       </div>
-    </li>
+    </motion.li>
   )
 }
