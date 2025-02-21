@@ -112,7 +112,7 @@ const DockIcon = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const padding = Math.max(4, size * 0.1);
+  const padding = Math.max(0, size * 0.00);
 
   const distanceCalc = useTransform(mouseX ?? defaultMouseX, (val: number) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
