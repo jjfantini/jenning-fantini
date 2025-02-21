@@ -19,7 +19,10 @@ import { DATA } from "@/data/personal-details";
 
 export default function Navbar() {
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+    <div 
+      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+      onTouchMove={(e) => e.preventDefault()}
+    >
       <TooltipProvider>
         <Dock direction="middle" className="pointer-events-auto bg-background/80 backdrop-blur-md border rounded-full p-1 sm:p-2 shadow-lg">
           {DATA.navbar.map((item) => (

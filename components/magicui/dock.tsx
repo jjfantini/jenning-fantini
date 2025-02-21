@@ -46,6 +46,16 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
   ) => {
     const mouseX = useMotionValue(Infinity);
 
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseX.set(e.touches[0].pageX);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      mouseX.set(Infinity);
+    };
+
     const renderChildren = () => {
       return React.Children.map(children, (child) => {
         if (React.isValidElement<DockIconProps>(child) && child.type === DockIcon) {
@@ -66,11 +76,15 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
         ref={ref}
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
         {...props}
         className={cn(dockVariants({ className }), {
           "items-start": direction === "top",
           "items-center": direction === "middle",
           "items-end": direction === "bottom",
+          "touch-none": true,
         })}
       >
         {renderChildren()}
