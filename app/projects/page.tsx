@@ -13,8 +13,8 @@ export default function ProjectsPage() {
         text="Projects" 
         className="text-4xl font-bold mb-8 text-neutral-900 dark:text-neutral-300"
       />
-      <div className="grid gap-8">
-        <div className="flex justify-center">
+      <div className="grid gap-y-1">
+        <div className="flex justify-center h-[4rem]">
           <TypingAnimation 
             className="text-lg text-neutral-900 dark:text-neutral-300 text-center"
             duration={50}
