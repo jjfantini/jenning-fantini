@@ -47,6 +47,7 @@ export default function ProjectsPage() {
               isPrivate={project.private}
               dates={project.dates}
               technologies={project.technologies}
+              borderColor={project.borderColor}
             />
           ))}
         </motion.ul>
@@ -64,9 +65,10 @@ interface GridItemProps {
   isPrivate: boolean
   dates: string
   technologies: readonly string[]
+  borderColor?: string
 }
 
-const GridItem = ({ area = "", icon, title, description, href, isPrivate, dates, technologies }: GridItemProps) => {
+const GridItem = ({ area = "", icon, title, description, href, isPrivate, dates, technologies, borderColor = "border-gray-600 dark:border-gray-600" }: GridItemProps) => {
   return (
     <motion.li 
       className={`min-h-[14rem] list-none ${area}`}
@@ -89,7 +91,7 @@ const GridItem = ({ area = "", icon, title, description, href, isPrivate, dates,
         <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-0.75 p-6 bg-zinc-100/65 dark:bg-transparent dark:shadow-[0px_0px_27px_0px_#2D2D2D] md:p-6">
           <div className="relative flex flex-1 flex-col gap-4">
             <div className="flex justify-between items-center">
-              <div className="w-fit rounded-lg border border-gray-600 p-2">
+              <div className={`w-fit rounded-lg border ${borderColor} p-2`}>
                 {icon}
               </div>
               <span className="px-2 py-1 text-xs rounded-full bg-zinc-200/60 dark:bg-zinc-800/40 text-zinc-900 dark:text-zinc-100">

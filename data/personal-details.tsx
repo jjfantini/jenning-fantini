@@ -113,14 +113,15 @@ export const DATA = {
   ],
   projects: [
     {
-      title: "humblFINANCE",
-      icon: <GlobeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
+      title: "✨ humblFINANCE ✨",
+      icon: <GlobeIcon className="h-4 w-4 text-amber-300 dark:text-amber-100" />,
+      borderColor: "border-amber-400 dark:border-amber-200",
       href: "https://humblfinance.io",
       dates: "Oct 2022 - Present",
       active: true,
       private: true,
       description:
-        "A modern, comprehensive financial platform offering multiple tools and services through a modular architecture. Features include humblCHANNEL (financial content/education), humblPORTFOLIO (portfolio management), and humblCOMPASS (financial guidance/analytics).",
+        "A modern, comprehensive financial platform offering multiple tools and services through a modular architecture. Features include humblCHANNEL (robust trading price channel), humblPORTFOLIO (portfolio management), and humblCOMPASS (global economic health indicator).",
       technologies: [
         "Next.js",
         "TypeScript", 
@@ -147,12 +148,13 @@ export const DATA = {
     {
       title: "humblDATA",
       icon: <CodeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
+      borderColor: "border-gray-600 dark:border-gray-600",
       href: "https://humblfinance.github.io/humblDATA/",
       dates: "March 2024 - Present",
       active: true,
       private: false,
       description:
-        "Built a Python library that connects humblFINANCE to financial data sources and provides institutional-grade analysis tools. Features include Mandelbrot price channels and high-performance volatility estimators powered by Rust.",
+        "Built a Python library that connects humblFINANCE to financial data sources and provides institutional-grade analysis tools. Features include Mandelbrot price channels and high-performance volatility estimators powered by Polars.",
       technologies: [
         "Python",
         "Poetry",
@@ -161,7 +163,7 @@ export const DATA = {
         "pre-commit",
         "GitHub Actions",
         "semantic-release",
-        "Polars",
+        "🐻‍❄️ Polars",
         "NumPy",
         "Custom Built Algorithms"
       ],
