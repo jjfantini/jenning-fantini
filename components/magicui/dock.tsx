@@ -14,6 +14,8 @@ import React, { PropsWithChildren, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from '@/lib/hooks/use-mobile-device';
 
+const defaultMouseX = new MotionValue();
+
 export interface DockProps extends VariantProps<typeof dockVariants> {
   className?: string;
   iconSize?: number;
@@ -117,14 +119,6 @@ const DockIcon = ({
 }: DockIconProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile('NavBar');
-  const [screenWidth, setScreenWidth] = React.useState(0);
-
-  React.useEffect(() => {
-    setScreenWidth(window.innerWidth);
-    const handleResize = () => setScreenWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const padding = Math.max(0, size * 0.00);
 
