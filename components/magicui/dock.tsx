@@ -156,9 +156,9 @@ const DockIcon = ({
   const enhancedChildren = React.Children.map(children, (child) => {
     if (
       React.isValidElement(child) &&
-      (child.type as any).displayName === "Tooltip"
+      ((child.type as { displayName?: string }).displayName === "Tooltip")
     ) {
-      return React.cloneElement(child, { open: isActive });
+      return React.cloneElement(child as React.ReactElement<{ open: boolean }>, { open: isActive });
     }
     return child;
   });
