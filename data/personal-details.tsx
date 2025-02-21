@@ -14,17 +14,17 @@ export const DATA = {
     "At the end of 2022, I quit my job as a software engineer to go fulltime into building and scaling my own SaaS businesses. In the past, [I pursued a double degree in computer science and business](/#education), [interned at big tech companies in Silicon Valley](https://www.youtube.com/watch?v=d-LJ2e5qKdE), and [competed in over 21 hackathons for fun](/#hackathons). I also had the pleasure of being a part of the first ever in-person cohort of buildspace called [buildspace sf1](https://buildspace.so/sf1).",
   avatarUrl: "/me.png",
   skills: [
-    "React",
-    "Next.js",
-    "Typescript",
-    "Node.js",
-    "Python",
-    "Go",
-    "Postgres",
-    "Docker",
-    "Kubernetes",
-    "Java",
-    "R",
+    "⚛️ React",
+    "⚡ Next.js",
+    "🔷 Typescript",
+    "💚 Node.js",
+    "🐍 Python",
+    "🦫 Go",
+    "🐘 Postgres",
+    "🐳 Docker",
+    "☸️ Kubernetes",
+    "☕ Java",
+    "📊 R",
   ],
   navbar: [
     { href: "/", icon: HomeIcon, label: "Home" },
@@ -123,16 +123,16 @@ export const DATA = {
       description:
         "A modern, comprehensive financial platform offering multiple tools and services through a modular architecture. Features include humblCHANNEL (robust trading price channel), humblPORTFOLIO (portfolio management), and humblCOMPASS (global economic health indicator).",
       technologies: [
-        "Next.js",
-        "TypeScript", 
-        "Supabase",
-        "Tailwind CSS",
-        "Shadcn UI",
-        "React Query",
-        "React Hook Form",
-        "Zod",
-        "Stripe",
-        "Nodemailer"
+        "⚛️ Next.js",
+        "🔷 TypeScript", 
+        "🗃️ Supabase",
+        "🎨 Tailwind CSS",
+        "🎯 Shadcn UI",
+        "🔄 React Query",
+        "📝 React Hook Form",
+        "✅ Zod",
+        "💳 Stripe",
+        "📧 Nodemailer"
       ],
       links: [
         {
@@ -146,26 +146,26 @@ export const DATA = {
         "https://pub-83c5db439b40468498f97946200806f7.r2.dev/chat-collect.mp4",
     },
     {
-      title: "humblDATA",
-      icon: <CodeIcon className="h-4 w-4 text-black dark:text-neutral-400" />,
-      borderColor: "border-gray-600 dark:border-gray-600",
+      title: "✨ humblDATA ✨",
+      icon: <CodeIcon className="h-4 w-4 text-amber-400 dark:text-amber-200" />,
+      borderColor: "border-amber-400 dark:border-amber-200",
       href: "https://humblfinance.github.io/humblDATA/",
-      dates: "March 2024 - Present",
+      dates: "March 2021 - Present",
       active: true,
       private: false,
       description:
         "Built a Python library that connects humblFINANCE to financial data sources and provides institutional-grade analysis tools. Features include Mandelbrot price channels and high-performance volatility estimators powered by Polars.",
       technologies: [
-        "Python",
-        "Poetry",
-        "Rust",
-        "Ruff",
-        "pre-commit",
-        "GitHub Actions",
-        "semantic-release",
+        "🐍 Python",
+        "📦 Poetry",
+        "🦀 Rust",
+        "🧹 Ruff",
+        "🔍 pre-commit",
+        "🔄 GitHub Actions",
+        "🚀 semantic-release",
         "🐻‍❄️ Polars",
-        "NumPy",
-        "Custom Built Algorithms"
+        "🔢 NumPy",
+        "🧮 Custom Built Algorithms"
       ],
       links: [
         {
@@ -187,13 +187,13 @@ export const DATA = {
       description:
         "Built a FastAPI-based backend service for the humblFINANCE web app, providing API endpoints and data processing capabilities to support financial operations.",
       technologies: [
-        "Python",
-        "FastAPI",
-        "SQLModel",
-        "Alembic",
-        "Poetry",
-        "Docker",
-        "PostgreSQL"
+        "🐍 Python",
+        "⚡ FastAPI",
+        "📊 SQLModel",
+        "🔄 Alembic",
+        "📦 Poetry",
+        "🐳 Docker",
+        "🐘 PostgreSQL"
       ],
       links: [
         {
@@ -215,15 +215,15 @@ export const DATA = {
       description: 
         "Created a modern Cookiecutter template for scaffolding Python packages and apps with features like Dev Containers, Poetry dependency management, Micromamba environments, and automated CI/CD pipelines.",
       technologies: [
-        "Python",
-        "Poetry", 
-        "Docker",
-        "GitHub Actions",
-        "Micromamba",
-        "Ruff",
-        "Mypy",
-        "pre-commit",
-        "Cookiecutter"
+        "🐍 Python",
+        "📦 Poetry", 
+        "🐳 Docker",
+        "🔄 GitHub Actions",
+        "🦎 Micromamba",
+        "🧹 Ruff",
+        "🎯 Mypy",
+        "🔍 pre-commit",
+        "🍪 Cookiecutter"
       ],
       links: [
         {
@@ -245,18 +245,18 @@ export const DATA = {
       description: 
         "Built an AI agent framework to manage social media accounts autonomously. Features AI-powered content management, local Supabase PostgreSQL database, and standardized development practices.",
       technologies: [
-        "Python 3.12",
-        "Pydantic-AI",
-        "FastAPI",
-        "Supabase",
-        "PostgreSQL",
-        "Poetry",
-        "Docker",
-        "Commitizen",
-        "AI Agents",
-        "OpenAI",
-        "Anthropic",
-        "Google AI"
+        "🐍 Python 3.12",
+        "🤖 Pydantic-AI",
+        "⚡ FastAPI",
+        "🗃️ Supabase",
+        "🐘 PostgreSQL",
+        "📦 Poetry",
+        "🐳 Docker",
+        "📝 Commitizen",
+        "🤖 AI Agents",
+        "🧠 OpenAI",
+        "🌐 Anthropic",
+        "🔍 Google AI"
       ],
       links: [
         {
@@ -278,16 +278,16 @@ export const DATA = {
       description: 
         "Built a specialized extension for the OpenBB Platform that integrates options data and analytics from ORATS. Features include options data retrieval (pricing, Greeks, implied volatility), advanced analytics, and historical data access with customizable queries.",
       technologies: [
-        "Python",
-        "Poetry",
-        "FastAPI",
-        "Pydantic",
-        "SQLModel",
-        "OpenBB SDK",
-        "ORATS API",
-        "Options Analytics",
-        "GitHub Actions",
-        "pre-commit"
+        "🐍 Python",
+        "📦 Poetry",
+        "⚡ FastAPI",
+        "✅ Pydantic",
+        "📊 SQLModel",
+        "🧱 OpenBB SDK",
+        "🔌 ORATS API",
+        "📊 Options Analytics",
+        "🔄 GitHub Actions",
+        "🔍 pre-commit"
       ],
       links: [
         {
@@ -309,13 +309,13 @@ export const DATA = {
       description:
         "Built a FastAPI-based backend service for automated bookkeeping and financial data processing. Features include RESTful API endpoints, asynchronous operations, and configurable multi-environment support.",
       technologies: [
-        "Python 3.12",
-        "FastAPI",
-        "SQLModel",
-        "Alembic",
-        "Poetry",
-        "Docker",
-        "PostgreSQL"
+        "🐍 Python 3.12",
+        "⚡ FastAPI",
+        "📊 SQLModel",
+        "🔄 Alembic",
+        "📦 Poetry",
+        "🐳 Docker",
+        "🐘 PostgreSQL"
       ],
       links: [
         {
@@ -337,16 +337,16 @@ export const DATA = {
       description:
         "Built an automated bookkeeping SaaS platform that streamlines financial record-keeping for small businesses. Features include automated transaction categorization, real-time financial insights, and seamless integration with major accounting software.",
       technologies: [
-        "Next.js",
-        "TypeScript",
-        "Supabase",
-        "Tailwind CSS",
-        "Shadcn UI",
-        "React Query",
-        "React Hook Form",
-        "Zod",
-        "Stripe",
-        "tRPC"
+        "⚛️ Next.js",
+        "🔷 TypeScript",
+        "🗃️ Supabase",
+        "🎨 Tailwind CSS",
+        "🎯 Shadcn UI",
+        "🔄 React Query",
+        "📝 React Hook Form",
+        "✅ Zod",
+        "💳 Stripe",
+        "🚀 tRPC"
       ],
       links: [
         {
@@ -368,14 +368,14 @@ export const DATA = {
       description:
         "Built a landing page for a patented pre-loaded dynamically mixing beverage vessel. Features include product showcase, interactive demonstrations, and a contact form for bespoke orders. The site highlights the world's first portable splashing vessel innovation.",
       technologies: [
-        "Next.js",
-        "TypeScript",
-        "Tailwind CSS",
-        "Framer Motion",
-        "React Hook Form",
-        "Video Integration",
-        "Responsive Design",
-        "SEO Optimization"
+        "⚛️ Next.js",
+        "🔷 TypeScript",
+        "🎨 Tailwind CSS",
+        "🎬 Framer Motion",
+        "📝 React Hook Form",
+        "🎥 Video Integration",
+        "📱 Responsive Design",
+        "🔍 SEO Optimization"
       ],
       links: [
         {
