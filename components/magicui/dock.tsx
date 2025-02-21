@@ -76,8 +76,8 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
     return (
       <motion.div
         ref={ref}
-        onMouseMove={(e) => mouseX.set(e.pageX)}
-        onMouseLeave={() => mouseX.set(Infinity)}
+        onPointerMove={(e) => mouseX.set(e.pageX)}
+        onPointerLeave={() => mouseX.set(Infinity)}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
@@ -86,7 +86,6 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
           "items-start": direction === "top",
           "items-center": direction === "middle",
           "items-end": direction === "bottom",
-          "touch-none": true,
         })}
       >
         {renderChildren()}
@@ -144,6 +143,26 @@ const DockIcon = ({
     }
   );
 
+  const [isActive, setIsActive] = React.useState(false);
+  const THRESHOLD = 5; // Adjust threshold (px) as desired
+
+  React.useEffect(() => {
+    const unsubscribe = distanceCalc.on("change", (val: number) => {
+      setIsActive(Math.abs(val) < THRESHOLD);
+    });
+    return unsubscribe;
+  }, [distanceCalc]);
+
+  const enhancedChildren = React.Children.map(children, (child) => {
+    if (
+      React.isValidElement(child) &&
+      (child.type as any).displayName === "Tooltip"
+    ) {
+      return React.cloneElement(child, { open: isActive });
+    }
+    return child;
+  });
+
   return (
     <motion.div
       ref={ref}
@@ -158,7 +177,7 @@ const DockIcon = ({
       )}
       {...props}
     >
-      {children}
+      {enhancedChildren}
     </motion.div>
   );
 };

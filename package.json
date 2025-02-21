@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "git clean -xdf node_modules dist .next"
+
   },
   "dependencies": {
     "@radix-ui/react-separator": "^1.1.2",
