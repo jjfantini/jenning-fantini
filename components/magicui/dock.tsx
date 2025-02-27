@@ -144,7 +144,7 @@ const DockIcon = ({
   );
 
   const [isActive, setIsActive] = React.useState(false);
-  const THRESHOLD = 5; // Adjust threshold (px) as desired
+  const THRESHOLD = 15; // Adjust threshold (px) as desired
 
   React.useEffect(() => {
     const unsubscribe = distanceCalc.on("change", (val: number) => {
