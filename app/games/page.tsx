@@ -13,6 +13,13 @@ const games = [
     description: "Control the snake, eat the food, and avoid hitting the walls or yourself!",
     color: "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-400 dark:hover:bg-emerald-300",
     textColor: "text-white dark:text-neutral-900"
+  },
+  {
+    slug: "tetris",
+    title: "Tetris",
+    description: "Stack falling tetriminos and clear lines to score points in this classic puzzle game!",
+    color: "bg-purple-500 hover:bg-purple-600 dark:bg-purple-400 dark:hover:bg-purple-300",
+    textColor: "text-white dark:text-neutral-900"
   }
   // Add more games here in the future
 ]

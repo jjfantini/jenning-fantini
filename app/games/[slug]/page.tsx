@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { AnimatedTitle } from "@/components/ui/animated-title"
 import TypingAnimation from "@/components/ui/typing-animation"
 import SnakeGame from "../_components/SnakeGame"
+import TetrisGame from "../_components/TetrisGame"
 
 // Define the games available in our application
 const games = {
@@ -12,6 +13,11 @@ const games = {
     title: "Snake Game",
     description: "Control the snake, eat the food, and avoid hitting the walls or yourself!",
     component: SnakeGame
+  },
+  tetris: {
+    title: "Tetris",
+    description: "Stack falling tetriminos and clear lines to score points in this classic puzzle game!",
+    component: TetrisGame
   }
   // Add more games here in the future
 }
