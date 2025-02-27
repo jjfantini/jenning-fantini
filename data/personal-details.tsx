@@ -1,5 +1,5 @@
 import { Icons } from "@/components/ui/icons";
-import { HomeIcon, FolderIcon, BookOpenIcon, GlobeIcon, CodeIcon, DatabaseIcon } from "lucide-react";
+import { HomeIcon, FolderIcon, BookOpenIcon, GlobeIcon, CodeIcon, DatabaseIcon, GamepadIcon } from "lucide-react";
 
 export const DATA = {
   name: "Jennings Fantini",
@@ -30,6 +30,7 @@ export const DATA = {
     { href: "/", icon: HomeIcon, label: "Home" },
     { href: "/projects", icon: FolderIcon, label: "Projects" },
     { href: "/blog", icon: BookOpenIcon, label: "Blog" },
+    { href: "/games", icon: GamepadIcon, label: "Games" },
   ],
   contact: {
     email: "hello@example.com",
