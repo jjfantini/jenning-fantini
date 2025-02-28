@@ -78,6 +78,9 @@ const TETRIMINOS = {
   }
 }
 
+// Counter for unique tetrimino IDs
+const tetriminoIdRef = { current: 0 };
+
 // Define a Player type to avoid using 'any'
 type PlayerType = {
   pos: { x: number, y: number };
@@ -87,6 +90,7 @@ type PlayerType = {
   };
   name: string;
   collided: boolean;
+  id: number;
 }
 
 // Create random tetrimino
@@ -98,6 +102,8 @@ const randomTetrimino = () => {
   // Adjust starting position based on shape width to center it
   const width = tetriminoType.shape[0].length
   
+  tetriminoIdRef.current++;
+  
   return {
     pos: { 
       x: Math.floor(BOARD_WIDTH / 2) - Math.floor(width / 2), 
@@ -105,7 +111,8 @@ const randomTetrimino = () => {
     },
     tetrimino: tetriminoType,
     name: key,
-    collided: false
+    collided: false,
+    id: tetriminoIdRef.current
   }
 }
 
@@ -129,35 +136,29 @@ const TetrisGame: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false)
   const [touchStart, setTouchStart] = useState<{ x: number, y: number } | null>(null)
   const [gameStarted, setGameStarted] = useState(false)
+  const [isAiMode, setIsAiMode] = useState(false);
+  const [aiActions, setAiActions] = useState<(() => void)[]>([]);
   
   const boardRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number>(0)
   const lastTimeRef = useRef<number>(0)
   const dropTimeRef = useRef<number>(SPEEDS[getDifficultyByLevel(level)])
   const accumulatedTimeRef = useRef<number>(0)
+  const aiActionTimerRef = useRef(0);
   
   // Check for collisions - improved version
   const checkCollision = useCallback((player: PlayerType, board: CellContent[][], { x: moveX, y: moveY } = { x: 0, y: 0 }) => {
-    // Loop through all tetrimino blocks
     for (let y = 0; y < player.tetrimino.shape.length; y++) {
       for (let x = 0; x < player.tetrimino.shape[y].length; x++) {
-        // Only check occupied cells
         if (player.tetrimino.shape[y][x] !== 0) {
           const newY = y + player.pos.y + moveY;
           const newX = x + player.pos.x + moveX;
-          
-          // Check if position is outside the game board boundaries
           if (
-            newY < 0 || 
-            newY >= BOARD_HEIGHT || 
             newX < 0 || 
-            newX >= BOARD_WIDTH
+            newX >= BOARD_WIDTH || 
+            newY >= BOARD_HEIGHT || 
+            (newY >= 0 && board[newY][newX] !== 0)
           ) {
-            return true;
-          }
-          
-          // Check if position collides with a non-empty cell on the board
-          if (board[newY][newX] !== 0) {
             return true;
           }
         }
@@ -165,6 +166,112 @@ const TetrisGame: React.FC = () => {
     }
     return false;
   }, []);
+
+  // Helper functions for AI
+  const placeTetrimino = useCallback((board: CellContent[][], tetrimino: { shape: number[][], color: string }, pos: { x: number, y: number }) => {
+    const newBoard = board.map(row => [...row]);
+    tetrimino.shape.forEach((row, dy) => {
+      row.forEach((cell, dx) => {
+        if (cell !== 0) {
+          const boardY = pos.y + dy;
+          const boardX = pos.x + dx;
+          if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+            newBoard[boardY][boardX] = tetrimino.color;
+          }
+        }
+      });
+    });
+    return newBoard;
+  }, []);
+
+  const clearCompletedLines = useCallback((board: CellContent[][]) => {
+    const newBoard: CellContent[][] = [];
+    let rowsCleared = 0;
+    for (let y = 0; y < BOARD_HEIGHT; y++) {
+      if (board[y].every(cell => cell !== 0)) {
+        rowsCleared += 1;
+      } else {
+        newBoard.push([...board[y]]);
+      }
+    }
+    while (newBoard.length < BOARD_HEIGHT) {
+      newBoard.unshift(Array(BOARD_WIDTH).fill(0));
+    }
+    return { newBoard, rowsCleared };
+  }, []);
+
+  const calculateMetrics = useCallback((board: CellContent[][]) => {
+    const heights = Array(BOARD_WIDTH).fill(BOARD_HEIGHT);
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      for (let y = 0; y < BOARD_HEIGHT; y++) {
+        if (board[y][x] !== 0) {
+          heights[x] = BOARD_HEIGHT - y;
+          break;
+        }
+      }
+    }
+    const actualHeights = heights.map(h => (h < BOARD_HEIGHT ? h : 0));
+    const aggregateHeight = actualHeights.reduce((sum, h) => sum + h, 0);
+    let holes = 0;
+    for (let x = 0; x < BOARD_WIDTH; x++) {
+      let hasFilledAbove = false;
+      for (let y = 0; y < BOARD_HEIGHT; y++) {
+        if (board[y][x] !== 0) {
+          hasFilledAbove = true;
+        } else if (hasFilledAbove) {
+          holes++;
+        }
+      }
+    }
+    let bumpiness = 0;
+    for (let x = 0; x < BOARD_WIDTH - 1; x++) {
+      bumpiness += Math.abs(actualHeights[x] - actualHeights[x + 1]);
+    }
+    return { aggregateHeight, holes, bumpiness };
+  }, []);
+
+  // Find the best move for AI
+  const findBestMove = useCallback(() => {
+    let bestScore = -Infinity;
+    let bestMove = { rotation: 0, x: player.pos.x };
+    const currentBoard = board;
+    const tetrimino = player.tetrimino;
+    const tetriminoName = player.name;
+    const maxRotations = tetriminoName === 'O' ? 1 : (tetriminoName === 'I' || tetriminoName === 'S' || tetriminoName === 'Z' ? 2 : 4);
+
+    for (let rot = 0; rot < maxRotations; rot++) {
+      let rotatedShape = [...tetrimino.shape];
+      for (let r = 0; r < rot; r++) {
+        rotatedShape = rotate(rotatedShape, 1);
+      }
+      const width = rotatedShape[0].length;
+      for (let x = -width + 1; x < BOARD_WIDTH; x++) {
+        const tempPlayer = { 
+          ...player, 
+          tetrimino: { ...tetrimino, shape: rotatedShape }, 
+          pos: { x, y: 0 } 
+        };
+        if (checkCollision(tempPlayer, currentBoard, { x: 0, y: 0 })) continue;
+
+        let dropY = 0;
+        while (!checkCollision(tempPlayer, currentBoard, { x: 0, y: dropY + 1 })) {
+          dropY++;
+        }
+        tempPlayer.pos.y = dropY;
+
+        const newBoard = placeTetrimino(currentBoard, tempPlayer.tetrimino, tempPlayer.pos);
+        const { newBoard: sweptBoard, rowsCleared } = clearCompletedLines(newBoard);
+        const { aggregateHeight, holes, bumpiness } = calculateMetrics(sweptBoard);
+
+        const score = 10 * rowsCleared + (rowsCleared === 4 ? 20 : 0) - 1 * aggregateHeight - 5 * holes - 1 * bumpiness;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = { rotation: rot, x };
+        }
+      }
+    }
+    return bestMove;
+  }, [player, board, checkCollision, placeTetrimino, clearCompletedLines, calculateMetrics]);
 
   // Rotate piece
   const rotate = (matrix: number[][], dir: number) => {
@@ -331,6 +438,8 @@ const TetrisGame: React.FC = () => {
 
   // Handle keypress
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
+    if (isAiMode) return; // Ignore keypresses in AI mode
+    
     const keyCode = e.keyCode || e.which;
     
     // Prevent default behavior for arrow keys and space to avoid page scrolling
@@ -373,7 +482,7 @@ const TetrisGame: React.FC = () => {
       default:
         break
     }
-  }, [gameOver, isPaused, movePlayer, dropPlayer, playerRotate, board, hardDrop, resetGame]);
+  }, [gameOver, isPaused, movePlayer, dropPlayer, playerRotate, board, hardDrop, resetGame, isAiMode]);
 
   // Handle touch controls
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -416,16 +525,27 @@ const TetrisGame: React.FC = () => {
     lastTimeRef.current = time;
 
     if (!isPaused && !gameOver) {
-      accumulatedTimeRef.current += deltaTime;
+      if (isAiMode && aiActions.length > 0) {
+        aiActionTimerRef.current += deltaTime;
+        const AI_ACTION_INTERVAL = 100; // ms
+        if (aiActionTimerRef.current >= AI_ACTION_INTERVAL) {
+          const action = aiActions[0];
+          action();
+          setAiActions(prev => prev.slice(1));
+          aiActionTimerRef.current = 0;
+        }
+      } else {
+        accumulatedTimeRef.current += deltaTime;
 
-      if (accumulatedTimeRef.current >= dropTimeRef.current) {
-        drop();
-        accumulatedTimeRef.current = 0; // reset accumulator after dropping
+        if (accumulatedTimeRef.current >= dropTimeRef.current) {
+          drop();
+          accumulatedTimeRef.current = 0; // reset accumulator after dropping
+        }
       }
     }
 
     requestRef.current = requestAnimationFrame(gameLoop);
-  }, [drop, isPaused, gameOver]);
+  }, [drop, isPaused, gameOver, isAiMode, aiActions]);
 
   // Update board
   useEffect(() => {
@@ -461,6 +581,31 @@ const TetrisGame: React.FC = () => {
       window.removeEventListener('keydown', handleKeyPress)
     }
   }, [handleKeyPress])
+
+  // Trigger AI moves when a new tetrimino spawns
+  useEffect(() => {
+    if (isAiMode && !player.collided && gameStarted && !gameOver && !isPaused) {
+      const bestMove = findBestMove();
+      if (bestMove) {
+        const actions: (() => void)[] = [];
+        for (let i = 0; i < bestMove.rotation; i++) {
+          actions.push(() => playerRotate(board, 1));
+        }
+        const dx = bestMove.x - player.pos.x;
+        if (dx > 0) {
+          for (let i = 0; i < dx; i++) {
+            actions.push(() => movePlayer(1));
+          }
+        } else if (dx < 0) {
+          for (let i = 0; i < -dx; i++) {
+            actions.push(() => movePlayer(-1));
+          }
+        }
+        actions.push(hardDrop);
+        setAiActions(actions);
+      }
+    }
+  }, [player.id, isAiMode, gameStarted, gameOver, isPaused, findBestMove, playerRotate, board, movePlayer, hardDrop]);
 
   // Start game loop
   useEffect(() => {
@@ -652,6 +797,13 @@ const TetrisGame: React.FC = () => {
             >
               Reset
             </Button>
+            <Button 
+              onClick={() => setIsAiMode(prev => !prev)}
+              className={`w-full ${isAiMode ? 'bg-green-600' : 'bg-neutral-700'} text-white text-sm px-3 py-1 h-8`}
+              disabled={gameOver || !gameStarted}
+            >
+              {isAiMode ? 'AI On' : 'AI Off'}
+            </Button>
           </div>
           
           {/* Next piece */}
@@ -672,6 +824,7 @@ const TetrisGame: React.FC = () => {
               <p className="mb-0.5">↓ / S: Soft Drop</p>
               <p className="mb-0.5">Space: Hard Drop</p>
               <p className="mb-0.5">P: Pause</p>
+              {isAiMode && <p className="mt-1 text-green-400">AI Mode: ON</p>}
             </div>
           </div>
         </div>
