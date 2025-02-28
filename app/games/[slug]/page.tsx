@@ -6,6 +6,7 @@ import { AnimatedTitle } from "@/components/ui/animated-title"
 import TypingAnimation from "@/components/ui/typing-animation"
 import SnakeGame from "../_components/SnakeGame"
 import TetrisGame from "../_components/TetrisGame"
+import { useIsMobile } from "@/lib/hooks/use-mobile-device"
 
 // Define the games available in our application
 const games = {
@@ -37,6 +38,7 @@ export default function GamePage({ params }: Props) {
   // Unwrap params using React.use()
   const unwrappedParams = React.use(params) as UnwrappedParams
   const { slug } = unwrappedParams
+  const isMobile = useIsMobile()
   
   // Get the game data based on the slug
   const gameData = games[slug as keyof typeof games]
@@ -52,12 +54,12 @@ export default function GamePage({ params }: Props) {
     <div className="flex flex-col items-center justify-between p-2 md:p-8 z-10 font-mono text-sm" suppressHydrationWarning>
       <AnimatedTitle 
         text={gameData.title} 
-        className="text-4xl font-bold mb-8 text-neutral-900 dark:text-neutral-300"
+        className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold mb-4 md:mb-8 text-neutral-900 dark:text-neutral-300`}
       />
-      <div className="grid gap-y-1">
-        <div className="flex justify-center h-[4rem]">
+      <div className="grid gap-y-1 w-full">
+        <div className={`flex justify-center ${isMobile ? 'h-[5rem]' : 'h-[4rem]'}`}>
           <TypingAnimation 
-            className="text-lg text-neutral-900 dark:text-neutral-300 text-center"
+            className={`${isMobile ? 'text-sm' : 'text-lg'} text-neutral-900 dark:text-neutral-300 text-center px-2`}
             duration={50}
             delay={500}
             startOnView
@@ -66,11 +68,11 @@ export default function GamePage({ params }: Props) {
           </TypingAnimation>
         </div>
         
-        <div className="max-w-3xl mx-auto w-full mt-4">
+        <div className="w-full mt-2 md:mt-4">
           <GameComponent />
         </div>
       </div>
-      <div className="h-30 sm:h-20" />
+      <div className={`${isMobile ? 'h-20' : 'h-30 sm:h-20'}`} />
     </div>
   )
 } 

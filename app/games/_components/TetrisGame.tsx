@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { motion } from 'motion/react'
+import { useIsMobile } from '@/lib/hooks/use-mobile-device'
+import { ArrowUpIcon, ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ReloadIcon, PauseIcon, PlayIcon, RocketIcon } from '@radix-ui/react-icons'
 
 // Constants
 const BOARD_WIDTH = 10
@@ -134,17 +136,50 @@ const TetrisGame: React.FC = () => {
   const [lines, setLines] = useState(0)
   const [level, setLevel] = useState(1)
   const [isPaused, setIsPaused] = useState(false)
-  const [touchStart, setTouchStart] = useState<{ x: number, y: number } | null>(null)
+  const [touchStart, setTouchStart] = useState<{ x: number, y: number, time: number } | null>(null)
   const [gameStarted, setGameStarted] = useState(false)
-  const [isAiMode, setIsAiMode] = useState(false);
-  const [aiActions, setAiActions] = useState<(() => void)[]>([]);
+  const [isAiMode, setIsAiMode] = useState(false)
+  const [aiActions, setAiActions] = useState<(() => void)[]>([])
+  const [showTouchControls, setShowTouchControls] = useState(false)
+  const [lastTap, setLastTap] = useState<number>(0)
   
+  const isMobile = useIsMobile()
   const boardRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number>(0)
   const lastTimeRef = useRef<number>(0)
   const dropTimeRef = useRef<number>(SPEEDS[getDifficultyByLevel(level)])
   const accumulatedTimeRef = useRef<number>(0)
-  const aiActionTimerRef = useRef(0);
+  const aiActionTimerRef = useRef(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  
+  // Calculate cell size based on container width and device
+  const [cellSize, setCellSize] = useState(isMobile ? 22 : 30)
+  const [smallCellSize, setSmallCellSize] = useState(isMobile ? 14 : 20)
+  
+  // Update cell size on window resize
+  useEffect(() => {
+    const updateCellSize = () => {
+      if (!containerRef.current) return
+      
+      // Get available width
+      const containerWidth = containerRef.current.clientWidth
+      const screenHeight = window.innerHeight
+      
+      // Calculate optimal cell size based on available space
+      const maxCellWidth = Math.floor((containerWidth - 160) / BOARD_WIDTH) // 160px for side panel
+      const maxCellHeight = Math.floor((screenHeight * 0.75) / BOARD_HEIGHT)
+      
+      // Use the smaller dimension to ensure it fits
+      const optimalCellSize = Math.min(maxCellWidth, maxCellHeight, isMobile ? 26 : 30)
+      
+      setCellSize(Math.max(optimalCellSize, 18)) // Minimum cell size of 18px
+      setSmallCellSize(Math.max(Math.floor(optimalCellSize * 0.65), 12))
+    }
+    
+    updateCellSize()
+    window.addEventListener('resize', updateCellSize)
+    return () => window.removeEventListener('resize', updateCellSize)
+  }, [isMobile])
   
   // Check for collisions - improved version
   const checkCollision = useCallback((player: PlayerType, board: CellContent[][], { x: moveX, y: moveY } = { x: 0, y: 0 }) => {
@@ -486,7 +521,11 @@ const TetrisGame: React.FC = () => {
 
   // Handle touch controls
   const handleTouchStart = (e: React.TouchEvent) => {
-    const touchPos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    const touchPos = { 
+      x: e.touches[0].clientX, 
+      y: e.touches[0].clientY,
+      time: Date.now()
+    }
     setTouchStart(touchPos)
   }
 
@@ -496,7 +535,7 @@ const TetrisGame: React.FC = () => {
     const touchPos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
     const diffX = touchPos.x - touchStart.x
     const diffY = touchPos.y - touchStart.y
-    const threshold = 30
+    const threshold = 20 // Lower threshold for better responsiveness
 
     // Only register if movement is significant
     if (Math.abs(diffX) > threshold || Math.abs(diffY) > threshold) {
@@ -511,12 +550,66 @@ const TetrisGame: React.FC = () => {
         playerRotate(board, 1)
       }
       
-      setTouchStart(touchPos)
+      setTouchStart({...touchPos, time: touchStart.time})
     }
   }
 
   const handleTouchEnd = () => {
+    if (!touchStart || gameOver || isPaused) {
+      setTouchStart(null)
+      return
+    }
+
+    const touchEndTime = Date.now()
+    const touchDuration = touchEndTime - touchStart.time
+    
+    // Check for tap (short duration, minimal movement)
+    if (touchDuration < 300) {
+      // Check for double tap (second tap within 300ms of first)
+      const doubleTapDelay = touchEndTime - lastTap
+      if (doubleTapDelay < 300) {
+        // Double tap detected - perform hard drop
+        hardDrop()
+        setLastTap(0) // Reset to prevent triple-tap detection
+      } else {
+        // Single tap - rotate
+        playerRotate(board, 1)
+        setLastTap(touchEndTime)
+      }
+    }
+    
     setTouchStart(null)
+  }
+
+  // Touch control buttons
+  const handleRotate = () => {
+    if (!gameOver && !isPaused) {
+      playerRotate(board, 1)
+    }
+  }
+
+  const handleMoveLeft = () => {
+    if (!gameOver && !isPaused) {
+      movePlayer(-1)
+    }
+  }
+
+  const handleMoveRight = () => {
+    if (!gameOver && !isPaused) {
+      movePlayer(1)
+    }
+  }
+
+  const handleSoftDrop = () => {
+    if (!gameOver && !isPaused) {
+      dropPlayer()
+    }
+  }
+
+  const handleHardDrop = () => {
+    if (!gameOver && !isPaused) {
+      hardDrop()
+    }
   }
 
   // Animation game loop
@@ -605,7 +698,7 @@ const TetrisGame: React.FC = () => {
         setAiActions(actions);
       }
     }
-  }, [player.id, isAiMode, gameStarted, gameOver, isPaused, findBestMove, playerRotate, board, movePlayer, hardDrop]);
+  }, [player.id, isAiMode, gameStarted, gameOver, isPaused, findBestMove, playerRotate, board, movePlayer, hardDrop, player.collided, player.pos.x]);
 
   // Start game loop
   useEffect(() => {
@@ -617,16 +710,16 @@ const TetrisGame: React.FC = () => {
     }
   }, [gameLoop, gameOver])
 
-  // Define the cell styles directly
+  // Define the cell styles dynamically
   const cellStyle = {
-    width: '30px',
-    height: '30px',
+    width: `${cellSize}px`,
+    height: `${cellSize}px`,
     border: '1px solid #404040'
   }
 
   const smallCellStyle = {
-    width: '20px',
-    height: '20px'
+    width: `${smallCellSize}px`,
+    height: `${smallCellSize}px`
   }
 
   // Build the game board
@@ -675,9 +768,9 @@ const TetrisGame: React.FC = () => {
   // Board container style
   const boardContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: `repeat(${BOARD_WIDTH}, 30px)`,
-    width: `${BOARD_WIDTH * 30}px`,
-    height: `${BOARD_HEIGHT * 30}px`,
+    gridTemplateColumns: `repeat(${BOARD_WIDTH}, ${cellSize}px)`,
+    width: `${BOARD_WIDTH * cellSize}px`,
+    height: `${BOARD_HEIGHT * cellSize}px`,
     backgroundColor: '#171717',
     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
   }
@@ -685,16 +778,19 @@ const TetrisGame: React.FC = () => {
   // Next piece container style
   const nextPieceContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: `repeat(${nextPlayer.tetrimino.shape[0].length}, 20px)`,
+    gridTemplateColumns: `repeat(${nextPlayer.tetrimino.shape[0].length}, ${smallCellSize}px)`,
     gap: '2px',
     padding: '4px',
     backgroundColor: '#171717',
     justifyContent: 'center'
   }
 
+  // Touch control style
+  const touchButtonStyle = "flex items-center justify-center w-12 h-12 bg-neutral-800 rounded-full shadow-md active:bg-neutral-700"
+  
   return (
-    <div className="flex justify-center select-none">
-      <div className="flex items-start gap-4">
+    <div ref={containerRef} className="flex justify-center select-none w-full">
+      <div className={`flex flex-row items-start gap-3 md:gap-4`}>
         {/* Left column - Game board with stats on top */}
         <div className="flex flex-col gap-2">
           {/* Stats row directly above the game board */}
@@ -770,63 +866,131 @@ const TetrisGame: React.FC = () => {
                 <div className="bg-neutral-800 p-6 rounded-lg shadow-lg">
                   <h2 className="text-2xl font-bold text-white mb-4 text-center">Select Difficulty</h2>
                   <div className="flex flex-col gap-3">
-                    <Button onClick={() => resetGame('easy')} className="bg-green-500 hover:bg-green-600 text-white">Easy</Button>
-                    <Button onClick={() => resetGame('medium')} className="bg-yellow-500 hover:bg-yellow-600 text-white">Medium</Button>
-                    <Button onClick={() => resetGame('hard')} className="bg-red-500 hover:bg-red-600 text-white">Hard</Button>
+                    <Button onClick={() => resetGame('easy')} className="bg-green-500 hover:bg-green-600 text-white w-[140px]">Easy</Button>
+                    <Button onClick={() => resetGame('medium')} className="bg-yellow-500 hover:bg-yellow-600 text-white w-[140px]">Medium</Button>
+                    <Button onClick={() => resetGame('hard')} className="bg-red-500 hover:bg-red-600 text-white w-[140px]">Hard</Button>
+                    {isMobile && (
+                      <div className="mt-2">
+                        <label className="flex items-center text-white text-sm">
+                          <input
+                            type="checkbox"
+                            checked={showTouchControls}
+                            onChange={() => setShowTouchControls(!showTouchControls)}
+                            className="mr-2"
+                          />
+                          Show button controls
+                        </label>
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
             )}
           </div>
+          
+          {/* Touch controls for mobile - rendered at bottom of game */}
+          {isMobile && showTouchControls && gameStarted && !gameOver && (
+            <div className="mt-4 w-full">
+              <div className="flex justify-center gap-2 mb-2">
+                <button onClick={handleRotate} className={touchButtonStyle}>
+                  <ArrowUpIcon className="w-6 h-6 text-white" />
+                </button>
+              </div>
+              <div className="flex justify-center gap-6">
+                <button onClick={handleMoveLeft} className={touchButtonStyle}>
+                  <ArrowLeftIcon className="w-6 h-6 text-white" />
+                </button>
+                <button onClick={handleSoftDrop} className={touchButtonStyle}>
+                  <ArrowDownIcon className="w-6 h-6 text-white" />
+                </button>
+                <button onClick={handleMoveRight} className={touchButtonStyle}>
+                  <ArrowRightIcon className="w-6 h-6 text-white" />
+                </button>
+              </div>
+              <div className="flex justify-center mt-2">
+                <button onClick={handleHardDrop} className="flex items-center justify-center w-28 h-10 bg-red-600 rounded-lg shadow-md active:bg-red-700">
+                  <p className="text-white text-sm font-bold">Hard Drop</p>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right column - Info area and buttons */}
-        <div className="flex flex-col gap-3 w-[150px]">
-          {/* Action buttons at the top of the side panel */}
-          <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-4 w-[150px] max-w-[150px]">
+          {/* Action buttons */}
+          <div className="flex flex-col gap-3">
             <Button 
               onClick={() => setIsPaused(prev => !prev)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 h-8"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm h-10 flex justify-center items-center rounded-md"
               disabled={gameOver || !gameStarted}
             >
-              {isPaused ? 'Resume' : 'Pause'}
+              {isPaused ? <PlayIcon className="w-5 h-5" /> : <PauseIcon className="w-5 h-5" />}
+              <span className={isMobile ? 'hidden' : 'ml-1'}>{isPaused ? 'Resume' : 'Pause'}</span>
             </Button>
             <Button 
               onClick={() => setGameStarted(false)}
-              className="w-full bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 h-8"
+              className="w-full bg-red-600 hover:bg-red-700 text-white text-sm h-10 flex justify-center items-center rounded-md"
             >
-              Reset
+              <ReloadIcon className="w-5 h-5" />
+              <span className={isMobile ? 'hidden' : 'ml-1'}>Reset</span>
             </Button>
             <Button 
               onClick={() => setIsAiMode(prev => !prev)}
-              className={`w-full ${isAiMode ? 'bg-green-600' : 'bg-neutral-700'} text-white text-sm px-3 py-1 h-8`}
+              className={`w-full ${isAiMode ? 'bg-green-600 hover:bg-green-700' : 'bg-neutral-700 hover:bg-neutral-600'} text-white text-sm h-10 flex justify-center items-center rounded-md`}
               disabled={gameOver || !gameStarted}
             >
-              {isAiMode ? 'AI On' : 'AI Off'}
+              <RocketIcon className="w-5 h-5" />
+              <span className={isMobile ? 'hidden' : 'ml-1'}>{isAiMode ? 'AI On' : 'AI Off'}</span>
             </Button>
           </div>
           
           {/* Next piece */}
-          <div className="bg-neutral-800 dark:bg-neutral-700 p-2 rounded shadow-md">
-            <h3 className="text-sm font-bold text-white mb-1">Next</h3>
-            <div style={nextPieceContainerStyle}>
-              {renderNextPiece()}
+          <div className="bg-neutral-800 dark:bg-neutral-700 p-3 rounded shadow-md w-full">
+            <h3 className={`${isMobile ? 'text-xs' : 'text-sm'} font-bold text-white ${isMobile ? 'text-center mb-1' : 'mb-1'}`}>Next</h3>
+            <div className="flex justify-center">
+              <div style={nextPieceContainerStyle}>
+                {renderNextPiece()}
+              </div>
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="bg-neutral-800 dark:bg-neutral-700 p-2 rounded shadow-md">
+          {/* Controls info */}
+          <div className="bg-neutral-800 dark:bg-neutral-700 p-2 rounded shadow-md w-full">
             <h3 className="text-sm font-bold text-white mb-1">Controls</h3>
             <div className="text-white text-xs">
-              <p className="mb-0.5">↑ / W: Rotate</p>
-              <p className="mb-0.5">← / A: Move Left</p>
-              <p className="mb-0.5">→ / D: Move Right</p>
-              <p className="mb-0.5">↓ / S: Soft Drop</p>
-              <p className="mb-0.5">Space: Hard Drop</p>
-              <p className="mb-0.5">P: Pause</p>
+              {isMobile ? (
+                <>
+                  <p className="mb-0.5">Tap / Swipe Up: Rotate</p>
+                  <p className="mb-0.5">Swipe Left: Move Left</p>
+                  <p className="mb-0.5">Swipe Right: Move Right</p>
+                  <p className="mb-0.5">Swipe Down: Soft Drop</p>
+                  <p className="mb-0.5">Double Tap: Hard Drop</p>
+                </>
+              ) : (
+                <>
+                  <p className="mb-0.5">↑ / W: Rotate</p>
+                  <p className="mb-0.5">← / A: Move Left</p>
+                  <p className="mb-0.5">→ / D: Move Right</p>
+                  <p className="mb-0.5">↓ / S: Soft Drop</p>
+                  <p className="mb-0.5">Space: Hard Drop</p>
+                  <p className="mb-0.5">P: Pause</p>
+                </>
+              )}
               {isAiMode && <p className="mt-1 text-green-400">AI Mode: ON</p>}
             </div>
           </div>
+          
+          {/* Toggle touch controls on mobile */}
+          {isMobile && gameStarted && (
+            <Button 
+              onClick={() => setShowTouchControls(!showTouchControls)}
+              className="text-[10px] text-neutral-400 py-0 h-6 w-full"
+              variant="ghost"
+            >
+              {showTouchControls ? 'Hide Button Controls' : 'Show Button Controls'}
+            </Button>
+          )}
         </div>
       </div>
     </div>
