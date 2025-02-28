@@ -12,7 +12,7 @@ export interface VideoItem {
 export const videos: VideoItem[] = [
   {
     id: '1',
-    title: 'Bronco Ventures Elevator Pitch',
+    title: '🐎 Bronco Ventures Elevator Pitch',
     description: 'A quick 2 minute pitch for Bronco Ventures',
     slug: 'bronco-ventures-elevator-pitch',
     videoUrl: 'https://w34cwnffm5.ufs.sh/f/5USAzeJ8AgH4J35xfxsdC6blN4H3vywZEpOsnc9jg8Xxaqhi',

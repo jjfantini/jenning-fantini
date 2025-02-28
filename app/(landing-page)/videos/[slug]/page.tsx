@@ -6,9 +6,9 @@ import { Suspense } from 'react';
 import VideoSkeleton from '../_components/VideoSkeleton';
 
 interface VideoPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: VideoPageProps): Promise<Metadata> {

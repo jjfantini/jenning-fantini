@@ -11,6 +11,13 @@ const SPEEDS = {
   hard: 300    // 3 seconds
 }
 
+// Helper function to convert level number to difficulty string
+const getDifficultyByLevel = (level: number): keyof typeof SPEEDS => {
+  if (level <= 1) return 'easy';
+  if (level <= 3) return 'medium';
+  return 'hard';
+}
+
 // Tetrimino shapes
 const TETRIMINOS = {
   I: {
@@ -126,7 +133,7 @@ const TetrisGame: React.FC = () => {
   const boardRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number>(0)
   const lastTimeRef = useRef<number>(0)
-  const dropTimeRef = useRef<number>(SPEEDS[level as keyof typeof SPEEDS])
+  const dropTimeRef = useRef<number>(SPEEDS[getDifficultyByLevel(level)])
   const accumulatedTimeRef = useRef<number>(0)
   
   // Check for collisions - improved version
@@ -244,7 +251,7 @@ const TetrisGame: React.FC = () => {
         const newLevel = Math.floor(newLines / 10) + 1
         if (newLevel > level) {
           setLevel(newLevel)
-          dropTimeRef.current = SPEEDS[Math.min(6, newLevel) as keyof typeof SPEEDS]
+          dropTimeRef.current = SPEEDS[getDifficultyByLevel(newLevel)]
           accumulatedTimeRef.current = 0
         }
         return newLines
@@ -262,7 +269,7 @@ const TetrisGame: React.FC = () => {
     if (lines >= level * 10) {
       setLevel(prev => prev + 1)
       // Also increase speed
-      dropTimeRef.current = SPEEDS[Math.min(6, level + 1) as keyof typeof SPEEDS]
+      dropTimeRef.current = SPEEDS[getDifficultyByLevel(level + 1)]
     }
 
     if (checkCollision(player, board, { x: 0, y: 1 })) {
