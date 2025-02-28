@@ -5,7 +5,6 @@ import { motion } from 'motion/react'
 // Constants
 const BOARD_WIDTH = 10
 const BOARD_HEIGHT = 20
-const CELL_SIZE = 30
 const SPEEDS = {
   1: 800,
   2: 650,
@@ -75,6 +74,17 @@ const TETRIMINOS = {
   }
 }
 
+// Define a Player type to avoid using 'any'
+type PlayerType = {
+  pos: { x: number, y: number };
+  tetrimino: {
+    shape: number[][];
+    color: string;
+  };
+  name: string;
+  collided: boolean;
+}
+
 // Create random tetrimino
 const randomTetrimino = () => {
   const keys = Object.keys(TETRIMINOS)
@@ -106,8 +116,8 @@ type CellContent = string | number;
 
 const TetrisGame: React.FC = () => {
   const [board, setBoard] = useState<CellContent[][]>(createEmptyBoard())
-  const [player, setPlayer] = useState(randomTetrimino())
-  const [nextPlayer, setNextPlayer] = useState(randomTetrimino())
+  const [player, setPlayer] = useState<PlayerType>(randomTetrimino())
+  const [nextPlayer, setNextPlayer] = useState<PlayerType>(randomTetrimino())
   const [gameOver, setGameOver] = useState(false)
   const [score, setScore] = useState(0)
   const [lines, setLines] = useState(0)
@@ -121,7 +131,7 @@ const TetrisGame: React.FC = () => {
   const dropTimeRef = useRef<number>(SPEEDS[level as keyof typeof SPEEDS])
   
   // Check for collisions - improved version
-  const checkCollision = useCallback((player: any, board: CellContent[][], { x: moveX, y: moveY } = { x: 0, y: 0 }) => {
+  const checkCollision = useCallback((player: PlayerType, board: CellContent[][], { x: moveX, y: moveY } = { x: 0, y: 0 }) => {
     // Loop through all tetrimino blocks
     for (let y = 0; y < player.tetrimino.shape.length; y++) {
       for (let x = 0; x < player.tetrimino.shape[y].length; x++) {
@@ -162,7 +172,7 @@ const TetrisGame: React.FC = () => {
   }
 
   // Update player
-  const updatePlayerPos = ({ x, y, collided = false }: { x: number, y: number, collided?: boolean }) => {
+  const updatePlayerPos = useCallback(({ x, y, collided = false }: { x: number, y: number, collided?: boolean }) => {
     if (gameOver || isPaused) return
 
     setPlayer(prev => ({
@@ -170,10 +180,10 @@ const TetrisGame: React.FC = () => {
       pos: { x: (prev.pos.x + x), y: (prev.pos.y + y) },
       collided
     }))
-  }
+  }, [gameOver, isPaused]);
 
   // Rotate active player
-  const playerRotate = (board: CellContent[][], dir: number) => {
+  const playerRotate = useCallback((board: CellContent[][], dir: number) => {
     if (gameOver || isPaused) return
 
     const clonedPlayer = JSON.parse(JSON.stringify(player))
@@ -193,10 +203,10 @@ const TetrisGame: React.FC = () => {
     }
 
     setPlayer(clonedPlayer)
-  }
+  }, [player, checkCollision, gameOver, isPaused]);
 
   // Reset game
-  const resetGame = () => {
+  const resetGame = useCallback(() => {
     setBoard(createEmptyBoard())
     setPlayer(randomTetrimino())
     setNextPlayer(randomTetrimino())
@@ -205,10 +215,10 @@ const TetrisGame: React.FC = () => {
     setLevel(1)
     setGameOver(false)
     dropTimeRef.current = SPEEDS[1]
-  }
+  }, []);
 
   // Handle completed rows
-  const sweepRows = (newBoard: CellContent[][]) => {
+  const sweepRows = useCallback((newBoard: CellContent[][]) => {
     let rowsCleared = 0
 
     const sweepedBoard = newBoard.reduce((acc, row) => {
@@ -240,7 +250,7 @@ const TetrisGame: React.FC = () => {
     }
 
     return sweepedBoard
-  }
+  }, [level]);
 
   // Check if tetrimino should drop
   const drop = useCallback(() => {
@@ -259,7 +269,7 @@ const TetrisGame: React.FC = () => {
         // Check if any filled cells of the tetrimino are truly at the top
         let topCollision = false;
         player.tetrimino.shape.forEach((row, y) => {
-          row.forEach((cell, x) => {
+          row.forEach((cell) => {
             if (cell !== 0 && y + player.pos.y <= 0) {
               topCollision = true;
             }
@@ -282,16 +292,16 @@ const TetrisGame: React.FC = () => {
       // Player moves down
       updatePlayerPos({ x: 0, y: 1, collided: false })
     }
-  }, [player, board, lines, level, gameOver, isPaused, checkCollision])
+  }, [player, board, lines, level, gameOver, isPaused, checkCollision, updatePlayerPos]);
 
   // Drop the tetrimino faster
-  const dropPlayer = () => {
+  const dropPlayer = useCallback(() => {
     if (gameOver || isPaused) return
     drop()
-  }
+  }, [drop, gameOver, isPaused]);
 
   // Quick drop
-  const hardDrop = () => {
+  const hardDrop = useCallback(() => {
     if (gameOver || isPaused) return
 
     let newY = player.pos.y
@@ -299,16 +309,16 @@ const TetrisGame: React.FC = () => {
       newY += 1
     }
     updatePlayerPos({ x: 0, y: newY - player.pos.y, collided: true })
-  }
+  }, [player, board, checkCollision, updatePlayerPos, gameOver, isPaused]);
 
   // Move player horizontally
-  const movePlayer = (dir: number) => {
+  const movePlayer = useCallback((dir: number) => {
     if (gameOver || isPaused) return
 
     if (!checkCollision(player, board, { x: dir, y: 0 })) {
       updatePlayerPos({ x: dir, y: 0 })
     }
-  }
+  }, [player, board, checkCollision, gameOver, isPaused, updatePlayerPos]);
 
   // Handle keypress
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
@@ -346,16 +356,15 @@ const TetrisGame: React.FC = () => {
         break
       case 38:  // Up arrow
       case 87:  // W key
-      case 32:  // Space
         playerRotate(board, 1)
         break
-      case 16:  // Shift key
+      case 32:  // Space
         hardDrop()
         break
       default:
         break
     }
-  }, [gameOver, isPaused, movePlayer, dropPlayer, playerRotate, board, hardDrop, resetGame])
+  }, [gameOver, isPaused, movePlayer, dropPlayer, playerRotate, board, hardDrop, resetGame]);
 
   // Handle touch controls
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -392,21 +401,6 @@ const TetrisGame: React.FC = () => {
     setTouchStart(null)
   }
 
-  const handleTap = (e: React.TouchEvent) => {
-    const boardRect = boardRef.current?.getBoundingClientRect()
-    if (!boardRect) return
-
-    const tapX = e.touches[0].clientX - boardRect.left
-    const tapY = e.touches[0].clientY - boardRect.top
-    
-    // Check if tap is in the upper half (rotate) or lower half (drop)
-    if (tapY < boardRect.height / 2) {
-      playerRotate(board, 1)
-    } else {
-      hardDrop()
-    }
-  }
-
   // Animation game loop
   const gameLoop = useCallback((time = 0) => {
     const deltaTime = time - lastTimeRef.current
@@ -417,7 +411,7 @@ const TetrisGame: React.FC = () => {
     }
 
     requestRef.current = requestAnimationFrame(gameLoop)
-  }, [drop, isPaused, gameOver])
+  }, [drop, isPaused, gameOver]);
 
   // Update board
   useEffect(() => {
@@ -444,7 +438,7 @@ const TetrisGame: React.FC = () => {
       setPlayer(nextPlayer)
       setNextPlayer(randomTetrimino())
     }
-  }, [player.collided])
+  }, [player.collided, board, nextPlayer, player.pos.x, player.pos.y, player.tetrimino.color, player.tetrimino.shape, sweepRows]);
 
   // Handle keyboard events
   useEffect(() => {
@@ -472,8 +466,8 @@ const TetrisGame: React.FC = () => {
   }
 
   const smallCellStyle = {
-    width: '24px',
-    height: '24px'
+    width: '20px',
+    height: '20px'
   }
 
   // Build the game board
@@ -532,114 +526,122 @@ const TetrisGame: React.FC = () => {
   // Next piece container style
   const nextPieceContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: `repeat(${nextPlayer.tetrimino.shape[0].length}, 24px)`,
+    gridTemplateColumns: `repeat(${nextPlayer.tetrimino.shape[0].length}, 20px)`,
     gap: '2px',
-    padding: '8px',
+    padding: '4px',
     backgroundColor: '#171717',
     justifyContent: 'center'
   }
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center gap-8 mt-4 select-none">
-      {/* Main game area */}
-      <div 
-        ref={boardRef}
-        className="relative"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* Game board */}
-        <motion.div 
-          style={boardContainerStyle}
-          className="bg-neutral-900 dark:bg-neutral-800 shadow-lg"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          {renderBoard()}
-        </motion.div>
-
-        {/* Game Over overlay */}
-        {gameOver && (
-          <motion.div 
-            className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 z-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+    <div className="flex justify-center select-none">
+      {/* Main game area with integrated controls */}
+      <div className="flex items-start gap-4">
+        {/* Left column - Game board with stats on top */}
+        <div className="flex flex-col gap-2">
+          {/* Stats row directly above the game board */}
+          <div className="flex justify-between items-center w-full">
+            <div className="flex gap-2">
+              <div className="bg-neutral-800 dark:bg-neutral-700 px-3 py-1 rounded shadow-sm text-white text-xs">
+                Score: {score}
+              </div>
+              <div className="bg-neutral-800 dark:bg-neutral-700 px-3 py-1 rounded shadow-sm text-white text-xs">
+                Level: {level}
+              </div>
+              <div className="bg-neutral-800 dark:bg-neutral-700 px-3 py-1 rounded shadow-sm text-white text-xs">
+                Lines: {lines}
+              </div>
+            </div>
+          </div>
+          
+          {/* Game board */}
+          <div 
+            ref={boardRef}
+            className="relative"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <h2 className="text-3xl font-bold text-white mb-4">Game Over</h2>
-            <p className="text-xl text-white mb-6">Final Score: {score}</p>
+            <motion.div 
+              style={boardContainerStyle}
+              className="bg-neutral-900 dark:bg-neutral-800 shadow-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {renderBoard()}
+            </motion.div>
+
+            {/* Game Over overlay */}
+            {gameOver && (
+              <motion.div 
+                className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 z-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <h2 className="text-3xl font-bold text-white mb-4">Game Over</h2>
+                <p className="text-xl text-white mb-6">Final Score: {score}</p>
+                <Button 
+                  onClick={resetGame}
+                  className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  Play Again
+                </Button>
+              </motion.div>
+            )}
+
+            {/* Pause overlay */}
+            {isPaused && !gameOver && (
+              <motion.div 
+                className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 z-10"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <h2 className="text-3xl font-bold text-white">PAUSED</h2>
+              </motion.div>
+            )}
+          </div>
+        </div>
+
+        {/* Right column - Info area and buttons */}
+        <div className="flex flex-col gap-3 w-[150px]">
+          {/* Action buttons at the top of the side panel */}
+          <div className="flex flex-col gap-2">
+            <Button 
+              onClick={() => setIsPaused(prev => !prev)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 h-8"
+              disabled={gameOver}
+            >
+              {isPaused ? 'Resume' : 'Pause'}
+            </Button>
             <Button 
               onClick={resetGame}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white"
+              className="w-full bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 h-8"
             >
-              Play Again
+              Reset
             </Button>
-          </motion.div>
-        )}
-
-        {/* Pause overlay */}
-        {isPaused && !gameOver && (
-          <motion.div 
-            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 z-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <h2 className="text-3xl font-bold text-white">PAUSED</h2>
-          </motion.div>
-        )}
-      </div>
-
-      {/* Game info and controls */}
-      <div className="flex flex-col gap-6 w-[200px]">
-        {/* Score info */}
-        <div className="bg-neutral-800 dark:bg-neutral-700 p-4 rounded shadow-md">
-          <h3 className="text-lg font-bold text-white mb-2">Score</h3>
-          <p className="text-2xl text-white">{score}</p>
-          
-          <h3 className="text-lg font-bold text-white mt-4 mb-2">Lines</h3>
-          <p className="text-xl text-white">{lines}</p>
-          
-          <h3 className="text-lg font-bold text-white mt-4 mb-2">Level</h3>
-          <p className="text-xl text-white">{level}</p>
-        </div>
-
-        {/* Next piece */}
-        <div className="bg-neutral-800 dark:bg-neutral-700 p-4 rounded shadow-md">
-          <h3 className="text-lg font-bold text-white mb-2">Next</h3>
-          <div style={nextPieceContainerStyle}>
-            {renderNextPiece()}
           </div>
-        </div>
-
-        {/* Controls */}
-        <div className="bg-neutral-800 dark:bg-neutral-700 p-4 rounded shadow-md">
-          <h3 className="text-lg font-bold text-white mb-2">Controls</h3>
-          <div className="text-white text-sm">
-            <p className="mb-1">↑ / W: Rotate</p>
-            <p className="mb-1">← / A: Move Left</p>
-            <p className="mb-1">→ / D: Move Right</p>
-            <p className="mb-1">↓ / S: Soft Drop</p>
-            <p className="mb-1">Shift: Hard Drop</p>
-            <p className="mb-1">P: Pause</p>
+          
+          {/* Next piece */}
+          <div className="bg-neutral-800 dark:bg-neutral-700 p-2 rounded shadow-md">
+            <h3 className="text-sm font-bold text-white mb-1">Next</h3>
+            <div style={nextPieceContainerStyle}>
+              {renderNextPiece()}
+            </div>
           </div>
-        </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => setIsPaused(prev => !prev)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={gameOver}
-          >
-            {isPaused ? 'Resume' : 'Pause'}
-          </Button>
-          <Button 
-            onClick={resetGame}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-          >
-            Reset
-          </Button>
+          {/* Controls */}
+          <div className="bg-neutral-800 dark:bg-neutral-700 p-2 rounded shadow-md">
+            <h3 className="text-sm font-bold text-white mb-1">Controls</h3>
+            <div className="text-white text-xs">
+              <p className="mb-0.5">↑ / W: Rotate</p>
+              <p className="mb-0.5">← / A: Move Left</p>
+              <p className="mb-0.5">→ / D: Move Right</p>
+              <p className="mb-0.5">↓ / S: Soft Drop</p>
+              <p className="mb-0.5">Space: Hard Drop</p>
+              <p className="mb-0.5">P: Pause</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

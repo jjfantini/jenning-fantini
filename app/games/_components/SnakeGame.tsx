@@ -24,7 +24,6 @@ type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
 
 // Constants
 const GRID_SIZE = 20; // Game logic grid size
-const RENDER_SCALE = 3; // Internal render scale factor (higher = smoother)
 const CELL_SIZE_DESKTOP = 20; // px
 const CELL_SIZE_MOBILE = 16; // px
 const SPEEDS = {
@@ -138,10 +137,15 @@ export default function SnakeGame() {
     canvas.width = GRID_SIZE * cellSize;
     canvas.height = GRID_SIZE * cellSize;
     
-    // Initial render
-    drawGame(1);
+    // Initial render - we'll redraw whenever the dependency changes
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      // Draw a basic frame until the main drawGame can take over
+      ctx.fillStyle = colors.background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
     
-  }, [cellSize]);
+  }, [cellSize, colors]);
   
   // Generate random food position
   const generateFood = useCallback((): Position => {
@@ -185,17 +189,20 @@ export default function SnakeGame() {
       { x: head.x, y: head.y - 1 },
     ];
     
-    let dangerCount = 0;
+    // Count dangerous positions (commented out for now as it's not being used)
+    // let dangerCount = 0;
     adjacentPositions.forEach(pos => {
       // Check wall proximity
       if (pos.x < 0 || pos.x >= GRID_SIZE || pos.y < 0 || pos.y >= GRID_SIZE) {
-        dangerCount++;
+        // dangerCount++;
       }
       // Check snake body proximity (excluding head)
       else if (snake.slice(1).some(segment => segment.x === pos.x && segment.y === pos.y)) {
-        dangerCount++;
+        // dangerCount++;
       }
     });
+    
+    // TODO: Implement close calls logic if needed in the future
   }, [snake]);
   
   // Create a smooth curved path for the snake
@@ -245,11 +252,6 @@ export default function SnakeGame() {
     
     return smoothedPath;
   }, []);
-  
-  // Easing function for smooth animation
-  const easeInOutQuad = (t: number): number => {
-    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-  };
   
   // Even smoother easing function
   const easeInOutCubic = (t: number): number => {
@@ -612,7 +614,16 @@ export default function SnakeGame() {
       } else if (KEYCODES.PAUSE.includes(e.code)) {
         setGameState(prev => (prev === 'PLAYING' ? 'PAUSED' : prev === 'PAUSED' ? 'PLAYING' : prev));
       } else if (KEYCODES.RESTART.includes(e.code) && gameState === 'GAME_OVER') {
-        restartGame();
+        // Call restartGame directly without adding it to dependencies
+        // This is a workaround for the circular dependency
+        setSnake([{ x: 10, y: 10 }]);
+        setPrevSnake([{ x: 10, y: 10 }]);
+        setFood(generateFood());
+        setDirection('RIGHT');
+        setNextDirection('RIGHT');
+        setScore(0);
+        setAnimationProgress(1);
+        setGameState('PLAYING');
       }
     };
     
@@ -621,7 +632,7 @@ export default function SnakeGame() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [direction]);
+  }, [direction, gameState, generateFood]); // Remove restartGame and add generateFood instead
   
   // Touch/swipe controls
   useEffect(() => {
@@ -788,7 +799,7 @@ export default function SnakeGame() {
         {/* Game Area */}
         <motion.div 
           ref={gameAreaRef}
-          className="relative border-2 border-neutral-300 dark:border-neutral-700 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900"
+          className="relative border-2 dark:border-neutral-700 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900"
           style={{
             width: `${GRID_SIZE * cellSize}px`,
             height: `${GRID_SIZE * cellSize}px`,
