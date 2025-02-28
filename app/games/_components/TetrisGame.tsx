@@ -6,12 +6,9 @@ import { motion } from 'motion/react'
 const BOARD_WIDTH = 10
 const BOARD_HEIGHT = 20
 const SPEEDS = {
-  1: 800,
-  2: 650,
-  3: 500,
-  4: 370,
-  5: 250,
-  6: 160
+  easy: 600,   // 6 seconds
+  medium: 450, // 4.5 seconds
+  hard: 300    // 3 seconds
 }
 
 // Tetrimino shapes
@@ -124,11 +121,13 @@ const TetrisGame: React.FC = () => {
   const [level, setLevel] = useState(1)
   const [isPaused, setIsPaused] = useState(false)
   const [touchStart, setTouchStart] = useState<{ x: number, y: number } | null>(null)
+  const [gameStarted, setGameStarted] = useState(false)
   
   const boardRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number>(0)
   const lastTimeRef = useRef<number>(0)
   const dropTimeRef = useRef<number>(SPEEDS[level as keyof typeof SPEEDS])
+  const accumulatedTimeRef = useRef<number>(0)
   
   // Check for collisions - improved version
   const checkCollision = useCallback((player: PlayerType, board: CellContent[][], { x: moveX, y: moveY } = { x: 0, y: 0 }) => {
@@ -206,7 +205,7 @@ const TetrisGame: React.FC = () => {
   }, [player, checkCollision, gameOver, isPaused]);
 
   // Reset game
-  const resetGame = useCallback(() => {
+  const resetGame = useCallback((difficulty: keyof typeof SPEEDS) => {
     setBoard(createEmptyBoard())
     setPlayer(randomTetrimino())
     setNextPlayer(randomTetrimino())
@@ -214,7 +213,9 @@ const TetrisGame: React.FC = () => {
     setLines(0)
     setLevel(1)
     setGameOver(false)
-    dropTimeRef.current = SPEEDS[1]
+    dropTimeRef.current = SPEEDS[difficulty]
+    accumulatedTimeRef.current = 0
+    setGameStarted(true)
   }, []);
 
   // Handle completed rows
@@ -244,6 +245,7 @@ const TetrisGame: React.FC = () => {
         if (newLevel > level) {
           setLevel(newLevel)
           dropTimeRef.current = SPEEDS[Math.min(6, newLevel) as keyof typeof SPEEDS]
+          accumulatedTimeRef.current = 0
         }
         return newLines
       })
@@ -330,7 +332,7 @@ const TetrisGame: React.FC = () => {
     }
     
     if (gameOver) {
-      if (keyCode === 13) resetGame()  // Enter key
+      if (keyCode === 13) resetGame('easy')  // Enter key
       return
     }
 
@@ -403,14 +405,19 @@ const TetrisGame: React.FC = () => {
 
   // Animation game loop
   const gameLoop = useCallback((time = 0) => {
-    const deltaTime = time - lastTimeRef.current
-    lastTimeRef.current = time
+    const deltaTime = time - lastTimeRef.current;
+    lastTimeRef.current = time;
 
-    if (deltaTime > dropTimeRef.current && !isPaused && !gameOver) {
-      drop()
+    if (!isPaused && !gameOver) {
+      accumulatedTimeRef.current += deltaTime;
+
+      if (accumulatedTimeRef.current >= dropTimeRef.current) {
+        drop();
+        accumulatedTimeRef.current = 0; // reset accumulator after dropping
+      }
     }
 
-    requestRef.current = requestAnimationFrame(gameLoop)
+    requestRef.current = requestAnimationFrame(gameLoop);
   }, [drop, isPaused, gameOver]);
 
   // Update board
@@ -535,7 +542,6 @@ const TetrisGame: React.FC = () => {
 
   return (
     <div className="flex justify-center select-none">
-      {/* Main game area with integrated controls */}
       <div className="flex items-start gap-4">
         {/* Left column - Game board with stats on top */}
         <div className="flex flex-col gap-2">
@@ -582,10 +588,10 @@ const TetrisGame: React.FC = () => {
                 <h2 className="text-3xl font-bold text-white mb-4">Game Over</h2>
                 <p className="text-xl text-white mb-6">Final Score: {score}</p>
                 <Button 
-                  onClick={resetGame}
-                  className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() => setGameStarted(false)}
+                  className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white"
                 >
-                  Play Again
+                  Reset
                 </Button>
               </motion.div>
             )}
@@ -600,6 +606,25 @@ const TetrisGame: React.FC = () => {
                 <h2 className="text-3xl font-bold text-white">PAUSED</h2>
               </motion.div>
             )}
+
+            {/* Difficulty selection modal */}
+            {!gameStarted && (
+              <motion.div 
+                className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 z-20"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="bg-neutral-800 p-6 rounded-lg shadow-lg">
+                  <h2 className="text-2xl font-bold text-white mb-4 text-center">Select Difficulty</h2>
+                  <div className="flex flex-col gap-3">
+                    <Button onClick={() => resetGame('easy')} className="bg-green-500 hover:bg-green-600 text-white">Easy</Button>
+                    <Button onClick={() => resetGame('medium')} className="bg-yellow-500 hover:bg-yellow-600 text-white">Medium</Button>
+                    <Button onClick={() => resetGame('hard')} className="bg-red-500 hover:bg-red-600 text-white">Hard</Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -610,12 +635,12 @@ const TetrisGame: React.FC = () => {
             <Button 
               onClick={() => setIsPaused(prev => !prev)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 h-8"
-              disabled={gameOver}
+              disabled={gameOver || !gameStarted}
             >
               {isPaused ? 'Resume' : 'Pause'}
             </Button>
             <Button 
-              onClick={resetGame}
+              onClick={() => setGameStarted(false)}
               className="w-full bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 h-8"
             >
               Reset
